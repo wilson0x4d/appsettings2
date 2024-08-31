@@ -21,6 +21,7 @@ jobs:
     - name: "Execute"
       run: |
         cd '${{ gitea.workspace }}'
+        sys/init-venv.sh
         sys/run-tests.sh
   publish:
     name: "Publish"
@@ -39,4 +40,5 @@ jobs:
     - name: "Execute"
       run: |
         cd '${{ gitea.workspace }}'
-        sys/publish-packags.sh
+        sys/init-venv.sh
+        sys/publish-packages.sh
