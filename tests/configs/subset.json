@@ -1,0 +1,6 @@
+{
+    "some_float": 1,
+    "some_subobj": {
+        "some_string": "rand2"
+    }
+}

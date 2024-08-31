@@ -1,0 +1,13 @@
+{
+    "some_int": 1,
+    "some_float": 1.1,
+    "some_list": [
+        1, 2, 3
+    ],
+    "some_string": "rand1",
+    "some_subobj": {
+        "some_int": 1,
+        "some_float": 1.1,
+        "some_string": "rand1"
+    }
+}

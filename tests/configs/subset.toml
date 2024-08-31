@@ -1,0 +1,4 @@
+some_int = 3
+
+[some_subobj]
+some_float = 3.4

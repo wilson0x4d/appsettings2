@@ -1,0 +1,7 @@
+some_int: 3
+some_float: 3.3
+some_string: "rand3"
+some_subobj:
+  some_int: 3
+  some_float: 3.3
+  some_string: "rand3"

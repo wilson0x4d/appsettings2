@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "appsettings2"
+version = "0.0.1"
+description = "A python library that unifies configuration sources into a Configuration object that can be bound to complex types, or accessed directly for configuration data."
+authors = ["Shaun Wilson <mrshaunwilson@msn.com>"]
+license = "MIT"
+readme = "README.md"
+exclude = [
+    "tests"
+]
+packages = [
+    { include = "**/*.py", from = "src", to = "appsettings2", format = ["sdist", "wheel"] }
+]
+
+[tool.poetry.urls]
+documentation = "https://github.com/wilson0x4d/appsettings2/README.md"
+homepage = "https://github.com/wilson0x4d/appsettings2"
+repository = "https://github.com/wilson0x4d/appsettings2.git"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pyyaml = "^6.0.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
