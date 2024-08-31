@@ -5,5 +5,7 @@
 set -eo pipefail
 python3 -m venv --prompt "appsettings2" .venv
 source .venv/bin/activate
-echo $SEMVER
-poetry --version
+sed "s/0.0.0/$SEMVER/g" --in-place pyproject.toml
+sed "s/0.0.0/$SEMVER/g" --in-place src/__init__.py
+poetry build
+poetry publish --repository=x4d-pypi

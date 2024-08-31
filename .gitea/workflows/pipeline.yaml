@@ -6,9 +6,9 @@ on:
     types: [created]
 jobs:
   run-tests:
-    name: "Run Tests"
+    name: "Tests Only"
     runs-on: builder-py313
-    if: ${{ (contains(github.event.comment.body, '!verify') || contains(github.event.comment.body, '!publish')) && github.event.comment.user.username == 'wilson0x4d' }}
+    if: ${{ contains(github.event.comment.body, '!verify') && github.event.comment.user.username == 'wilson0x4d' }}
     steps:
     - uses: actions/checkout@v4
       with:
@@ -24,8 +24,7 @@ jobs:
         sys/init-venv.sh
         sys/run-tests.sh
   publish:
-    name: "Publish"
-    needs: run-tests
+    name: "Test & Publish"
     runs-on: builder-py313
     if: ${{ contains(github.event.comment.body, '!publish') && github.event.comment.user.username == 'wilson0x4d' }}
     steps:
@@ -41,4 +40,5 @@ jobs:
       run: |
         cd '${{ gitea.workspace }}'
         sys/init-venv.sh
+        sys/run-tests.sh
         sys/publish-packages.sh
