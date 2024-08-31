@@ -1,0 +1,42 @@
+0name: "Test Pipeline"
+run-name: ${{ gitea.actor }} (rn)
+on:
+  workflow_dispatch:
+  issue_comment:
+    types: [created]
+jobs:
+  run-tests:
+    name: "Run Tests"
+    runs-on: builder-py313
+    if: ${{ (contains(github.event.comment.body, '!verify') || contains(github.event.comment.body, '!publish')) && github.event.comment.user.username == 'wilson0x4d' }}
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: "Configure"
+      run: |
+        export SEMVER=$(conventional-semver)
+        echo "REGISTRY_NAMESPACE=wilson0x4d" >> "$GITHUB_ENV"
+        echo "SEMVER=$SEMVER" >> "$GITHUB_ENV"
+    - name: "Execute"
+      run: |
+        cd '${{ gitea.workspace }}'
+        sys/run-tests.sh
+  publish:
+    name: "Publish"
+    needs: run-tests
+    runs-on: builder-py313
+    if: ${{ contains(github.event.comment.body, '!publish') && github.event.comment.user.username == 'wilson0x4d' }}
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: "Configure"
+      run: |
+        export SEMVER=$(conventional-semver)
+        echo "REGISTRY_NAMESPACE=wilson0x4d" >> "$GITHUB_ENV"
+        echo "SEMVER=$SEMVER" >> "$GITHUB_ENV"
+    - name: "Execute"
+      run: |
+        cd '${{ gitea.workspace }}'
+        sys/publish-packags.sh
