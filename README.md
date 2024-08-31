@@ -6,7 +6,7 @@ A python library that unifies configuration sources into a Configuration object 
 
 Because I write a lot of containerized applications where I typically supply configuration settings using a combination of Configuration Files and Environment Variables.
 
-When I debug those applications I often need to override Confguration using Command-Line Arguments, Configuration Files, Environment Variables, or a combination thereof.
+When I debug those applications I often need to override Configuration using Command-Line Arguments, Configuration Files, Environment Variables, or a combination thereof.
 
 ## Usage
 
@@ -32,9 +32,9 @@ The order of providers determines precedence of configuration data. Providers ad
 
 Given the example above, this means that configuration data provided via Environment Variables will override configuration data provided via JSON files.
 
-## Accssing Configuration Data
+## Accessing Configuration Data
 
-There are two methods of directly accessing Configuration data directly. The first is by using first-class attributes in python, and the second is by using a `get(...)` method. 
+There are two methods of directly accessing Configuration data. The first is by using first-class attributes, and the second is by using a `get(...)` method. 
 
 Consider the following code which demonstrates both methods, where all three of these statements are equivalent:
 
@@ -44,7 +44,7 @@ value = configuration.get('ConnectionStrings:SampleDb')
 value = configuration.get('ConnectionStrings__SampleDb')
 ```
 
-When accessing hierarchical data you can use a double-underscore delimiter or a colon delimiter, they are equivalent. Devs and Ops from different walks will likely prefer one form over the other, so both are supported.
+When accessing hierarchical data with `get(...)` you can use a double-underscore delimiter or a colon delimiter, they are equivalent. Devs and Ops from different walks will likely prefer one form over the other, so both are supported.
 
 ## Binding to Configuration Data
 
@@ -81,12 +81,13 @@ The resulting `settings` object will contain all of the configuration data prope
 It is also possible to bind to a subset of a configuration, building upon the above, consider the following:
 
 ```python
-connectionStrings = configuration.bind(ConnectionStrings(), 'ConnectionStrings')
+connectionStrings = configuration.bind(ConnStrs(), 'ConnectionStrings')
+print(connectionStrings.SampleDb)
 ```
 
 ### Projecting Configuration Data as a Dictionary
 
-Laslty, as a convenience item you can materialize a `Configuration` instance as a Dictionary. This is primarily included as a debugging aid, but, if you have some chunk of code that can consume a dictionary but can't consume a Python object (it happens) then you can get at a dictionary as follows:
+Lastly, as a convenience feature you can materialize a `Configuration` instance as a Dictionary. This is primarily included as a debugging aid, but, if you have some chunk of code that can consume a dictionary but can't consume a Python object (it happens) then you can get at a dictionary as follows:
 
 ```python
 config:Configuration = builder.build()
@@ -143,7 +144,7 @@ export ConnectionStrings__SampleDb=my_cxn_string
 export ConnectionStrings__AnotherDb=another_cxn_string
 ```
 
-The above will resule in a Configuration object with the following state (represented as JSON):
+The above will result in a Configuration object with the following state (represented as JSON):
 
 ```json
 {
@@ -201,7 +202,7 @@ However, the resulting `Configuration` object attribute names also become normal
 
 Probably most devs and devops working in enterprise environments will want to adopt `normalize=True` as a matter of practice. This will allow devops to conform around the use of upper-case key names in configuration systems, and allow devs to use whatever casing rules make the most sense for their projects (since `bind()` will still work as expected.) This does assume developers are creating concerete configuration types (you ARE doing that, correct?)
 
-I would have preferred to make `normalize=True` by default, but, I suspect someone out there will want to use `Configuration` instances directly rather than create bind targets and this would have resulted in attribute names that were upper case. To illustrate, from one of the early examples in this doc would instead look like this:
+I would have preferred to make `normalize=True` by default, but, I suspect someone out there will want to use `Configuration` instances directly rather than create bind targets and this would have resulted in attribute names that were upper case. To illustrate, one of the early examples in this doc would instead look like this:
 
 ```python
 value = configuration.CONNECTIONSTRINGS.SAMPLEDB # <-- this
@@ -209,8 +210,8 @@ value = configuration.get('ConnectionStrings:SampleDb')
 value = configuration.get('ConnectionStrings__SampleDb')
 ```
 
-In the future I may further abstract this detail away so we get the best of both worlds, but for now there is the parameter to let you control the behavior.
+In the future I may abstract this detail away so we get the best of both worlds, but for now there is the parameter to let you control the behavior.
 
 ## Conclusion
 
-If you made it this far, this library is probably what you were looking for. I'm certain there are other libraries which accomplish much of what I am attempting to accomplish here, but I wanted something i can directly support over the coming years. That, and the nearest equivalent to what I wanted fell out of active development nearly a decade ago and I just didn't feel comfortable adopting it for new work.
+If you made it this far, this library is probably what you were looking for. I'm certain there are other libraries which accomplish much of what I am attempting to accomplish here, but I wanted something I can directly support over the coming years. That, and the nearest equivalent to what I wanted fell out of active development nearly a decade ago and I just didn't feel comfortable adopting it for new work.

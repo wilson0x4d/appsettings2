@@ -1,10 +1,15 @@
 [tool.poetry]
 name = "appsettings2"
-version = "0.0.1"
+version = "0.0.0"
 description = "A python library that unifies configuration sources into a Configuration object that can be bound to complex types, or accessed directly for configuration data."
 authors = ["Shaun Wilson <mrshaunwilson@msn.com>"]
 license = "MIT"
 readme = "README.md"
+classifiers = [
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.13"
+]
 exclude = [
     "tests"
 ]
@@ -13,7 +18,7 @@ packages = [
 ]
 
 [tool.poetry.urls]
-documentation = "https://github.com/wilson0x4d/appsettings2/README.md"
+documentation = "https://github.com/wilson0x4d/appsettings2/blob/master/README.md"
 homepage = "https://github.com/wilson0x4d/appsettings2"
 repository = "https://github.com/wilson0x4d/appsettings2.git"
 
