@@ -3,21 +3,25 @@
 
 from . import ConfigurationException
 import json
+import re
 import types
 from typing import Any, TypeAlias, get_type_hints
+import unicodedata
 
 any:TypeAlias = Any
 
 class Configuration:
     """A configuration class which creates a layer of indirection between configuration providers and configuration consumers."""
 
+    __key_scrub_re:re.Pattern
     __keys:dict[str, str]
     __normalize:bool
 
-    def __init__(self, *, normalize:bool = False):
+    def __init__(self, *, normalize:bool = False, scrubkeys:bool = False):
         """By default keys are ingest as-is, pass `True` for `normalize` to normalize kets to lower case."""
         self.__keys = {}
         self.__normalize = normalize
+        self.__key_scrub_re = None if not scrubkeys else re.compile(r'[^A-Za-z0-9_]', re.IGNORECASE | re.UNICODE)
 
     def __delitem__(self, key:str) -> None:
         key = key.upper()
@@ -35,7 +39,7 @@ class Configuration:
                 if k == None:
                     raise KeyError()
                 else:
-                    o = getattr(o, k)
+                    o = getattr(o, self.__scrub_key(k))
             else:
                 o = o[part]
         return o
@@ -85,6 +89,24 @@ class Configuration:
                 setattr(target, aname, None)
         return target
 
+    def __scrub_key(self, key:str) -> str:
+        """Scrubs a key for use as an attribute/identifier according to the Python lexer/standard."""
+        key = key\
+            .replace('__', '.')\
+            .replace(':', '.')
+        return key if None == self.__key_scrub_re else \
+            self.__key_scrub_re.sub(
+                self.__scrub_uc,
+                unicodedata.normalize(
+                    'NFKC',
+                    key))
+
+    def __scrub_uc(self, m:re.Match) -> str:
+        match unicodedata.category(m[0]):
+            case 'Lu' | 'Ll' | 'Lt' | 'Lm' | 'Lo' | 'Nl' | 'Mn' | 'Mc' | 'Nd' | 'Pc' :
+                return m[0]
+            case _:
+                return '_'
 
     def __setitem__(self, key:str, value:any) -> None:
         self.set(key, value)
@@ -118,7 +140,7 @@ class Configuration:
                 if k == None:
                     return default
                 else:
-                    o = getattr(o, k)
+                    o = getattr(o, self.__scrub_key(k))
             else:
                 o = o.get(part, default)
         return o
@@ -151,15 +173,15 @@ class Configuration:
             if o == self:
                 k = self.__keys.get(parts[i].upper())
                 if k == None:
-                    c = Configuration(normalize=self.__normalize)
-                    setattr(o, parts[i], c)
+                    c = Configuration(normalize=self.__normalize, scrubkeys=(None != self.__key_scrub_re))
+                    setattr(o, self.__scrub_key(parts[i]), c)
                     self.__keys[parts[i].upper()] = parts[i]
                     o = c
                 else:
-                    o = getattr(self, k)
+                    o = getattr(self, self.__scrub_key(k))
             else:
                 if not o.has_key(parts[i]):
-                    c = Configuration(normalize=self.__normalize)
+                    c = Configuration(normalize=self.__normalize, scrubkeys=(None != self.__key_scrub_re))
                     o.set(parts[i], c)
                     o = c
                 else:
@@ -168,10 +190,10 @@ class Configuration:
         if o == self:
             k = self.__keys.get(key.upper())
             if k != None:
-                setattr(self, k, value)
+                setattr(self, self.__scrub_key(k), value)
             else:
                 self.__keys[key.upper()] = key
-                setattr(self, key, value)
+                setattr(self, self.__scrub_key(key), value)
         else:
             o.set(key, value)
 
@@ -179,7 +201,7 @@ class Configuration:
         """Projects a dictionary from the configuration object."""
         result = {}
         for k in self.__keys.values():
-            v = getattr(self, k)
+            v = getattr(self, self.__scrub_key(k))
             if isinstance(v, Configuration):
                 result[k] = v.toDictionary()
             else:
@@ -189,6 +211,6 @@ class Configuration:
     def values(self) -> list[any]:
         values = []
         for k in self.__keys.values():
-            v = getattr(self, k)
+            v = getattr(self, self.__scrub_key(k))
             values.append(v)
         return values

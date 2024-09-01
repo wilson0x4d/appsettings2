@@ -194,9 +194,11 @@ The `TomlConfigurationProvider` should be functionally identical to the JSON pro
 
 The `YamlConfigurationProvider` should be functionally identical to the JSON and TOML providers, with the obvious difference that it loads Configuration data from a yaml file.
 
-## A note on `normalize` parameters..
+## Special Attribute Name Handling
 
-`ConfigurationBuilder` accepts a parameter `normalize:bool` which defaults to `False` causing `Configuration` attributes to preserve keys the input configuration.
+### Upper-Case Attribute Names
+
+`ConfigurationBuilder` accepts a parameter `normalize:bool` which defaults to `False` causing `Configuration` attributes to preserve the casing of keys from the input configuration.
 
 If you pass `normalize=True`, all `Configuration` instances created by that builder will normalize `Configuration` attributes to upper-case.
 
@@ -223,6 +225,57 @@ value = configuration['cOnNeCtioNsTriNGs']['sampledb']
 ```
 
 Normalization has no effect on `bind(...)`, which operates in a case-insensitive fashion internally.
+
+### Lexer-friendly Attribute Names
+
+`ConfigurationBuilder` accepts a parameter `scrubkeys:bool` which defaults to `False` causing `Configuration` attributes to preserve the keys from the input configuration even if they would be inaccessible from Python code.
+
+If you pass `scrubkeys=True`, all `Configuration` instances created by that builder will generate lexically accessible `Configuration` attributes.
+
+This is not enabled by default because it introduces an edge case where configuration keys may collide, albeit very unlikely, this is explained below.
+
+Some configuration sources might produce attribute names which are not accessible from Python code. Consider the following JSON snippet:
+
+```json
+{
+  "query-tab" : {
+    "fragment#left": {
+        "input": true
+    }
+  }
+}
+```
+
+This configuration will load, and you can still access the data using keyed methods such as `get(...)` and `set(...)`, but the resulting `Configuration` object will have attributes that cannot be accessed from Python code:
+
+```python
+if True == configuration.query-tab.fragment#left.input:
+    pass
+```
+
+To accomodate configurations such as these and make them accessible via `Configuration` attributes you may pass `scrubkeys=True`. This will cause any lexically invalid characters to be transformed into an underscore `_` character.
+
+Although attribute names are transformed, keys are not. Therefore, given the above JSON snippet the following are equivalent:
+
+```python
+# access via object attributes
+configuration.query_tab.fragement_left.input
+# access using indexers
+configuration['query-tab']['fragment#left']
+# access using other 'key' methods
+configuration.get('query-tab').has_key('fragment#left')
+```
+
+Lastly, this _does_ make it possible for configuration values to collide, for example, these two keys will collide:
+
+```json
+{
+  "key#1": true,
+  "key-1": false
+}
+```
+
+Attempting to access these values will result in a value of `False` being returned, and setting the value of one key will affect the value of the other, this is because internally there will be only one storage slot/attribute that is shared between them. Although an unlikely scenario, it is for this reason the feature is opt-in only.
 
 ## Conclusion
 

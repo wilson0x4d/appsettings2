@@ -246,3 +246,16 @@ class ConfigurationTests(unittest.TestCase):
         self.assertEqual(3, configuration.get('MIXED_CASE_KEY'))
         self.assertEqual(3, configuration['mixEd_cASe_KeY'])
         self.assertEqual(3, configuration.get('MixeD_cASe_KeY'))
+
+    def test_ScrubkeysOptionGeneratesLexerFriendlyAttributes(self):
+        configuration = appsettings2.Configuration(scrubkeys=True)
+        configuration.set('basic#verification', 1)
+        # confirm keys are accessible under their original name
+        self.assertEqual(1, configuration['basic#verification'])
+        self.assertEqual(1, configuration.get('basic#verification'))
+        # confirm lexer-friendly attribute name is used
+        self.assertEqual(1, configuration.basic_verification)
+        # and a sanity check that we can do this in reverse
+        configuration.basic_verification = 2
+        self.assertEqual(2, configuration['basic#verification'])
+        self.assertEqual(2, configuration.get('basic#verification'))

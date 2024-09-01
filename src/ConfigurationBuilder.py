@@ -13,8 +13,9 @@ class ConfigurationBuilder:
     __normalize:bool
     __providers:list[ConfigurationProvider]
 
-    def __init__(self, *, normalize:bool = False):
+    def __init__(self, *, normalize:bool = False, scrubkeys:bool = False):
         self.__normalize = normalize
+        self.__scrubkeys = scrubkeys
         self.__providers = []
 
     def addProvider(self, provider:ConfigurationProvider) -> 'ConfigurationBuilder':
@@ -26,7 +27,7 @@ class ConfigurationBuilder:
 
     def build(self) -> Configuration:
         """Builds a Configuration object from all providers which have been added to this builder."""
-        configuration = Configuration(normalize=self.__normalize)
+        configuration = Configuration(normalize=self.__normalize, scrubkeys=self.__scrubkeys)
         for provider in self.__providers:
             provider.populateConfiguration(configuration)
         return configuration
