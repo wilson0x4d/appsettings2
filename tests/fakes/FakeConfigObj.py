@@ -3,9 +3,9 @@
 
 import typing
 
-ExampleConfigObj = typing.ForwardRef('ExampleConfigObj')
+FakeConfigObj = typing.ForwardRef('FakeConfigObj')
 
-class ExampleConfigObj:
+class FakeConfigObj:
 
     test_argv:int = None
     env_test:int = None
@@ -13,7 +13,7 @@ class ExampleConfigObj:
     some_int:int = None
     some_list:list = None
     some_string:str = None
-    some_subobj:ExampleConfigObj = None
+    some_subobj:FakeConfigObj = None
 
     def fn1(self):
         return -1
@@ -28,4 +28,4 @@ class ExampleConfigObj:
         yield -4
 
 # why? https://github.com/python/typing/issues/797
-typing.get_type_hints(ExampleConfigObj)
+typing.get_type_hints(FakeConfigObj)

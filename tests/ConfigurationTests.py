@@ -153,7 +153,7 @@ class ConfigurationTests(unittest.TestCase):
 
     def test_WithSubsets_MustBind(self):
         configuration = self.__getSubsetConfiguration()
-        obj = ExampleConfigObj()
+        obj = FakeConfigObj()
         o = configuration.bind(obj)
         self.assertEqual(o, obj)
         self.assertEqual(1, obj.some_float)
