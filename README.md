@@ -34,21 +34,39 @@ Given the example above, this means that configuration data provided via Environ
 
 ## Accessing Configuration Data
 
-There are two methods of directly accessing Configuration data. The first is by using first-class attributes, and the second is by using a `get(...)` method. 
+There are multiple ways of accessing Configuration data:
 
-Consider the following code which demonstrates both methods, where all three of these statements are equivalent:
+* Attributes attached to the `Configuration` object which represent your configuration data.
+* Calling `get(...)` and `set(...)` methods, passing in the key of the configuration data.
+* A dictionary-like interface exposing configuration data from an indexer.
+* Binding the configuration data to a class/object you define.
+
+### Direct Access via `Configuration` object
+
+Consider the following code which demonstrates the first three methods mentioned above. All three of these methods are equivalent and return the same underlying value.
 
 ```python
+# access `Configuration` attributes
 value = configuration.ConnectionStrings.SampleDb
-value = configuration.get('ConnectionStrings:SampleDb')
+# access using `get(...)`
 value = configuration.get('ConnectionStrings__SampleDb')
+value = configuration.get('ConnectionStrings:SampleDb')
+value = configuration.get('ConnectionStrings').get('SampleDb')
+# access using indexer
+value = configuration['ConnectionStrings__SampleDb']
+value = configuration['ConnectionStrings:SampleDb']
+value = configuration['ConnectionStrings']['SampleDb']
 ```
 
-When accessing hierarchical data with `get(...)` you can use a double-underscore delimiter or a colon delimiter, they are equivalent. Devs and Ops from different walks will likely prefer one form over the other, so both are supported.
+When accessing hierarchical data by "key" you can use a double-underscore delimiter or a colon delimiter, they are equivalent.
 
-### Binding to Configuration Data
+Devs and Ops from different walks will likely prefer one form over the other, so both are supported.
 
-It's also possible to bind configuration data to complex types. While some of the implementation is currently naive, it should work well for the vast majority of use cases. If you find your particular case does not work well please reach out to me and I will work with you to implement a sensible solution.  Consider the following Python code:
+Additionally, keys are case-insensitive (attribute names are not.)
+
+### Binding `Configuration` to Objects
+
+It's possible to bind configuration data to complex types. While some of the implementation is currently naive, it should work well for the vast majority of use cases. If you find your particular case does not work well please reach out to me and I will work with you to implement a sensible solution.  Consider the following Python code:
 
 ```python
 json = """{
@@ -61,7 +79,7 @@ json = """{
 
 class ConnStrs:
     """An ugly class name to demonstrate the class name does not matter."""
-    SampleDb:str = None
+    SampleDB:str = None
 
 class AppSettings:
     ConnectionStrings:ConnStrs = None
@@ -74,6 +92,8 @@ configuration = ConfigurationBuilder()\
 
 settings = AppSettings()
 configuration.bind(settings)
+
+print(settings.ConnectionStrings.SampleDB) # prints "my_cxn_string"
 ```
 
 The resulting `settings` object will contain all of the configuration data properly typed according to type hints.
@@ -82,19 +102,28 @@ It is also possible to bind to a subset of a configuration, building upon the ab
 
 ```python
 connectionStrings = configuration.bind(ConnStrs(), 'ConnectionStrings')
-print(connectionStrings.SampleDb)
+print(connectionStrings.SampleDB)
 ```
 
-### Accessing Configuration Data as a Dictionary
+Lastly, a cautious eye may have noticed that the input configuration and class definition have a casing difference. `SampleDb` vs `SampleDB` -- by design binding is case-insensitive. This ensures that automation systems which can only communicate in upper-case can still support developers that prefer to have readable code ... without burdening the developers with extra work.
 
-`Configuration` is dict-like (with minor exceptions such as not supporting dynamic views) and in most cases can be used as if it were a dict where strict type checks would not otherwise prevent it.
+### Accessing `Configuration` Dictionary-like
 
-Alternatively, you can project a `Configuration` instnace into a dictionary (as a copy.) This is primarily included as a debugging aid, but, if you have some chunk of code that can consume a dictionary but can't consume a Python object (it happens) then you can get at a proper dictionary instance as follows:
+`Configuration` is dict-like and in most cases can be used as if it were a dict where strict type checks would not otherwise prevent it.
+
+### Transform `Configuration` to Dictionary
+
+You can transform a `Configuration` instance into a dictionary (as a copy.) If you have some chunk of code that can consume a dictionary but can't consume a Python object (it happens) then you can get at a proper dictionary instance as follows:
 
 ```python
-config:Configuration = builder.build()
-my_dict = config.toDictionary()
-print(my_dict)
+configuration = builder.build()
+print(
+    json.dumps(
+        configuration.toDictionary()
+    )
+)
+# or, this short-hand for the same
+print(configuration)
 ```
 
 ## Providers
@@ -135,7 +164,7 @@ It's also possible to use a colon in lieu of a double_underscore, but this may h
 'ConnectionStrings:SampleDb=my_connection_string'
 ```
 
-This provider was implemented in a way that it does not interfere with libraries such as `argparse`, and should work as expected with a well-formed command-line interface. 
+This provider was implemented in a way that it does not interfere with libraries such as `argparse`, and should work as expected with a well-formed command-line interface. An explicit goal of this provider was to not depend on a CLI library at all.
 
 ### Environment Variables
 
@@ -193,6 +222,23 @@ The `TomlConfigurationProvider` should be functionally identical to the JSON pro
 ### YAML
 
 The `YamlConfigurationProvider` should be functionally identical to the JSON and TOML providers, with the obvious difference that it loads Configuration data from a yaml file.
+
+### Custom Provider Development
+
+You can implement custom Configuration Providers by subclassing `ConfigurationProvider` and implementing `populateConfiguration(...)`.
+
+For a peek at the simplicity of provider implementation, this is `ConfigurationProvider`:
+
+```python
+class ConfigurationProvider(abstract):
+
+    @abstractmethod
+    def populateConfiguration(self, configuration:Configuration) -> None:
+        """The ConfigurationProvider will populate the provided Configuration instance."""
+        pass
+```
+
+Essentially, you read your configuration source and write the configuration data into the specified `Configuration` object. Much of the complexity in dealing with hierarchy and allocation is encapsulated within the impl of `Configuration`. As a result, most providers are less than 20 lines of functional code. 
 
 ## Special Attribute Name Handling
 
@@ -259,7 +305,7 @@ Although attribute names are transformed, keys are not. Therefore, given the abo
 
 ```python
 # access via object attributes
-configuration.query_tab.fragement_left.input
+configuration.query_tab.fragment_left.input
 # access using indexers
 configuration['query-tab']['fragment#left']
 # access using other 'key' methods
@@ -280,3 +326,7 @@ Attempting to access these values will result in a value of `False` being return
 ## Conclusion
 
 If you made it this far, this library is probably what you were looking for. I'm certain there are other libraries which accomplish much of what I am attempting to accomplish here, but I wanted something I can directly support over the coming years. That, and the nearest equivalent to what I wanted fell out of active development nearly a decade ago and I just didn't feel comfortable adopting it for new work.
+
+## Contact
+
+You can reach me on [Discord](https://discordapp.com/users/307684202080501761) or [open an Issue on Github](https://github.com/wilson0x4d/appsettings2/issues/new/choose).
