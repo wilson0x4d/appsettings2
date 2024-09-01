@@ -36,6 +36,7 @@ jobs:
         export SEMVER=$(conventional-semver)
         echo "REGISTRY_NAMESPACE=wilson0x4d" >> "$GITHUB_ENV"
         echo "SEMVER=$SEMVER" >> "$GITHUB_ENV"
+        echo "PYPI_REPO=${{ vars.PYPI_REPO }}" >> "$GITHUB_ENV"
     - name: "Execute"
       run: |
         cd '${{ gitea.workspace }}'

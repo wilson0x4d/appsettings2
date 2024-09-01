@@ -8,4 +8,4 @@ source .venv/bin/activate
 sed "s/0.0.0/$SEMVER/g" --in-place pyproject.toml
 sed "s/0.0.0/$SEMVER/g" --in-place src/__init__.py
 poetry build
-poetry publish --repository=x4d-pypi
+poetry publish --repository=$PYPI_REPO
