@@ -49,6 +49,61 @@ class ConfigurationTests(unittest.TestCase):
         self.assertEqual(5, v)
         self.assertEqual(5, config.THIS.IS_A.TEST)
 
+    def test_IsDictionaryLike(self):
+        config = appsettings2.Configuration()
+        self.assertRaises(KeyError, config.__getitem__, 'test')
+        # confirm basic key-value semantics
+        config['test'] = '123'
+        self.assertEqual('123', config.test)
+        config.test = None
+        self.assertIsNone(None, config.test)
+        # confirm keys(), values()
+        config.test = 234
+        self.assertEqual(234, config['test'])
+        self.assertEqual(1, len(config.keys()))
+        self.assertEqual(1, len(config.values()))
+        # confirm items()
+        items = config.items()
+        self.assertEqual(1, len(items))
+        self.assertEqual('test', items[0][0])
+        self.assertEqual(234, items[0][1])
+        # confirm len()
+        self.assertEqual(1, len(config))
+        config['test2'] = 34.5
+        self.assertEqual(2, len(config))
+        self.assertEqual(34.5, config.test2)
+        # confirm del syntax, and has_key()
+        self.assertTrue(config.has_key('test2'))
+        del config['test2']
+        self.assertEqual(1, len(config))
+        self.assertFalse(config.has_key('test2'))
+        # confirm pop()
+        config['test3'] = 4.5
+        config['test4'] = '5'
+        self.assertEqual(4.5, config.test3)
+        self.assertEqual('5', config.test4)
+        self.assertEqual(4.5, config.pop('test3'))
+        self.assertFalse(config.has_key('test3'))
+        self.assertEqual(2, len(config))
+        # confirm iterable
+        config.clear()
+        self.assertEqual(0, len(config))
+        for e in config:
+            self.fail('unexpected iterable item')
+        config.set('foo', 'bar')
+        for e in config:
+            self.assertEqual('foo', e)
+            self.assertEqual('bar', config[e])
+        # implementation detail: confirm hierarchical keys
+        # result in the expected hierarchical state.
+        config.clear()
+        config['test__hierarchy'] = 1
+        self.assertIsNotNone(config['test'])
+        self.assertIsNotNone(config['test']['hierarchy'])
+        self.assertEqual(appsettings2.Configuration, type(config['test']))
+        self.assertEqual(1, len(config['test']))
+        self.assertEqual(1, config['test']['hierarchy'])
+
     def test_ToDictionary_MustSucceed(self):
         config = appsettings2.Configuration()
         config.set('THIS:IS_A.TEST1', 1)

@@ -46,9 +46,9 @@ value = configuration.get('ConnectionStrings__SampleDb')
 
 When accessing hierarchical data with `get(...)` you can use a double-underscore delimiter or a colon delimiter, they are equivalent. Devs and Ops from different walks will likely prefer one form over the other, so both are supported.
 
-## Binding to Configuration Data
+### Binding to Configuration Data
 
-It's also possible to bind configuration data to complex types. While some of the implementation is currently naive, it should work well for the vast majority of use-cases. If you find your particular edge case does not work well please reach out to me and I will work with you to implement a sensible solution.  Consider the following Python code:
+It's also possible to bind configuration data to complex types. While some of the implementation is currently naive, it should work well for the vast majority of use cases. If you find your particular case does not work well please reach out to me and I will work with you to implement a sensible solution.  Consider the following Python code:
 
 ```python
 json = """{
@@ -85,9 +85,11 @@ connectionStrings = configuration.bind(ConnStrs(), 'ConnectionStrings')
 print(connectionStrings.SampleDb)
 ```
 
-### Projecting Configuration Data as a Dictionary
+### Accessing Configuration Data as a Dictionary
 
-Lastly, as a convenience feature you can materialize a `Configuration` instance as a Dictionary. This is primarily included as a debugging aid, but, if you have some chunk of code that can consume a dictionary but can't consume a Python object (it happens) then you can get at a dictionary as follows:
+`Configuration` is dict-like (with minor exceptions such as not supporting dynamic views) and in most cases can be used as if it were a dict where strict type checks would not otherwise prevent it.
+
+Alternatively, you can project a `Configuration` instnace into a dictionary (as a copy.) This is primarily included as a debugging aid, but, if you have some chunk of code that can consume a dictionary but can't consume a Python object (it happens) then you can get at a proper dictionary instance as follows:
 
 ```python
 config:Configuration = builder.build()
