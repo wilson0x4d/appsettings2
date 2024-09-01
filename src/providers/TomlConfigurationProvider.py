@@ -1,8 +1,9 @@
 # SPDX-FileCopyrightText: © 2024 Shaun Wilson
 # SPDX-License-Identifier: MIT
 
-from . import ConfigurationProvider
-from .. import Configuration, ConfigurationException
+from .ConfigurationProvider import ConfigurationProvider
+from ..Configuration import Configuration
+from ..ConfigurationException import ConfigurationException
 import os
 import tomllib as _toml
 from typing import Any, TypeAlias

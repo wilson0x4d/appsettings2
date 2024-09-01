@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: © 2024 Shaun Wilson
 # SPDX-License-Identifier: MIT
 
-from . import ConfigurationProvider
-from .. import Configuration
+from .ConfigurationProvider import ConfigurationProvider
+from ..Configuration import Configuration
 import sys
 
 class CommandLineConfigurationProvider(ConfigurationProvider):

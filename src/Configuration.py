@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: © 2024 Shaun Wilson
 # SPDX-License-Identifier: MIT
 
-from . import ConfigurationException
+from .ConfigurationException import ConfigurationException
 import json
 import re
 import types

@@ -1,8 +1,9 @@
 # SPDX-FileCopyrightText: © 2024 Shaun Wilson
 # SPDX-License-Identifier: MIT
 
-from . import ConfigurationProvider
-from .. import Configuration, ConfigurationException
+from .ConfigurationProvider import ConfigurationProvider
+from ..Configuration import Configuration
+from ..ConfigurationException import ConfigurationException
 import json as _json
 import os
 from typing import Any, TypeAlias

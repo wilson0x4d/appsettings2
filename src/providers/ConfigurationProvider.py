@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: © 2024 Shaun Wilson
 # SPDX-License-Identifier: MIT
 
-from .. import Configuration
+from ..Configuration import Configuration
 from abc import ABC as abstract, abstractmethod
 
 class ConfigurationProvider(abstract):
