@@ -178,7 +178,7 @@ When loaded using `JsonConfigurationProvider` the resulting `Configuration` obje
 from appsettings2 import *
 from appsettings2.providers import *
 
-config = ConfigurationBuilder(normalize=True)\
+config = ConfigurationBuilder()\
     .addProvider(JsonConfigurationProvider('example.json'))\
     .build()
 
@@ -196,23 +196,33 @@ The `YamlConfigurationProvider` should be functionally identical to the JSON and
 
 ## A note on `normalize` parameters..
 
-`ConfigurationBuilder` accepts a parameter `normalize:bool` which defaults to `False` causing `bind()` to behave in a case-sensitive fashion.
+`ConfigurationBuilder` accepts a parameter `normalize:bool` which defaults to `False` causing `Configuration` attributes to preserve keys the input configuration.
 
-When set to `True` it causes the internal implementation of `Configuration` to normalize all configuration keys to uppercase, and consequently, `bind(...)` is no longer case-sensitive.
+If you pass `normalize=True`, all `Configuration` instances created by that builder will normalize `Configuration` attributes to upper-case.
 
-However, the resulting `Configuration` object attribute names also become normalized to upper case which may not be desired by some developers.
+In both cases the `Configuration` object allows access to data in a case-insensitive fashion. Normalization _ONLY_ affects the resulting object attributes.
 
-Probably most devs and devops working in enterprise environments will want to adopt `normalize=True` as a matter of practice. This will allow devops to conform around the use of upper-case key names in configuration systems, and allow devs to use whatever casing rules make the most sense for their projects (since `bind()` will still work as expected.) This does assume developers are creating concerete configuration types (you ARE doing that, correct?)
-
-I would have preferred to make `normalize=True` by default, but, I suspect someone out there will want to use `Configuration` instances directly rather than create bind targets and this would have resulted in attribute names that were upper case. To illustrate, one of the early examples in this doc would instead look like this:
+To illustrate, consider the following snippet:
 
 ```python
-value = configuration.CONNECTIONSTRINGS.SAMPLEDB # <-- this
-value = configuration.get('ConnectionStrings:SampleDb')
-value = configuration.get('ConnectionStrings__SampleDb')
+configuration = Configuration(normalize=True)
+configuration.set('ConnectionStrings__SampleDb', 'blah')
+# normalized attributes looks like this:
+value = configuration.CONNECTIONSTRINGS.SAMPLEDB
+# but you can still access the data case-insensitive:
+value = configuration.get('connectionstrings__SAMPLEDB')
+value = configuration['cOnNeCtioNsTriNGs']['sampledb']
+# however, by default (where normalize=False):
+configuration = Configuration()
+configuration.set('ConnectionStrings__SampleDb', 'blah')
+# attributes look like this:
+value = configuration.ConnectionStrings.SampleDb
+# and as before, you have case-insensitive access:
+value = configuration.get('connectionstrings__SAMPLEDB')
+value = configuration['cOnNeCtioNsTriNGs']['sampledb']
 ```
 
-In the future I may abstract this detail away so we get the best of both worlds, but for now there is the parameter to let you control the behavior.
+Normalization has no effect on `bind(...)`, which operates in a case-insensitive fashion internally.
 
 ## Conclusion
 
