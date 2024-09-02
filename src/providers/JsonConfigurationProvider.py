@@ -6,10 +6,10 @@ from ..Configuration import Configuration
 from ..ConfigurationException import ConfigurationException
 import json as _json
 import os
-from typing import Any, TypeAlias
+from typing import Any
 
-FileDescriptor: TypeAlias = int
-any: TypeAlias = Any
+type FileDescriptor = int
+type any = Any
 
 class JsonConfigurationProvider(ConfigurationProvider):
     """Processes a json string, json file, or json stream and provides the content as Configuration data."""

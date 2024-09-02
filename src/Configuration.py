@@ -5,10 +5,10 @@ from .ConfigurationException import ConfigurationException
 import json
 import re
 import types
-from typing import Any, TypeAlias, get_type_hints
+from typing import Any, ForwardRef, get_type_hints
 import unicodedata
 
-any:TypeAlias = Any
+type any = Any
 
 class Configuration:
     """A configuration class which creates a layer of indirection between configuration providers and configuration consumers."""

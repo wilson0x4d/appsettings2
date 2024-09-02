@@ -6,10 +6,10 @@ from ..Configuration import Configuration
 from ..ConfigurationException import ConfigurationException
 import os
 import tomllib as _toml
-from typing import Any, TypeAlias
+from typing import Any
 
-FileDescriptor: TypeAlias = int
-any: TypeAlias = Any
+type FileDescriptor = int
+type any = Any
 
 class TomlConfigurationProvider(ConfigurationProvider):
     """Processes a toml string, toml file, or toml stream and provides the content as Configuration data."""

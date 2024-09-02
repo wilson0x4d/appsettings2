@@ -6,11 +6,11 @@ from ..Configuration import Configuration
 from ..ConfigurationException import ConfigurationException
 from io import StringIO
 import os
-from typing import Any, TypeAlias
+from typing import Any
 import yaml as _yaml
 
-FileDescriptor: TypeAlias = int
-any: TypeAlias = Any
+type FileDescriptor = int
+type any = Any
 
 class YamlConfigurationProvider(ConfigurationProvider):
     """Processes a yaml string, yaml file, or yaml stream and provides the content as Configuration data."""

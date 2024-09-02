@@ -6,7 +6,7 @@ from .ConfigurationException import ConfigurationException
 from .providers import ConfigurationProvider
 import typing
 
-any: typing.TypeAlias = typing.Any
+type any = typing.Any
 
 class ConfigurationBuilder:
     """A class which builds a Configuration object from one ore more ConfigurationProvider instances."""
