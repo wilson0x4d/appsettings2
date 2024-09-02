@@ -259,3 +259,32 @@ class ConfigurationTests(unittest.TestCase):
         configuration.basic_verification = 2
         self.assertEqual(2, configuration['basic#verification'])
         self.assertEqual(2, configuration.get('basic#verification'))
+
+    def test_SupportsTypedLists(self):
+        provider = appsettings2.providers.JsonConfigurationProvider(
+            json="""
+            {
+                "keyValuePairs": [
+                    {
+                        "key": "key1",
+                        "value": "value1"
+                    },
+                    {
+                        "key": "key2",
+                        "value": "value2"
+                    }
+                ]
+            }""")
+        configuration = appsettings2.Configuration()
+        provider.populateConfiguration(configuration)
+        complexObject:FakeComplexObject = FakeComplexObject()
+        configuration.bind(complexObject)
+        self.assertIsNotNone(complexObject)
+        self.assertIsNotNone(complexObject.keyValuePairs)
+        self.assertEqual(2, len(complexObject.keyValuePairs))
+        i = 0
+        for e in complexObject.keyValuePairs:
+            i += 1
+            self.assertIsInstance(e, FakeKeyValuePair)
+            self.assertEqual(f'key{i}', e.key)
+            self.assertEqual(f'value{i}', e.value)

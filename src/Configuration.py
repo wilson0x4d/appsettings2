@@ -50,7 +50,7 @@ class Configuration:
     def __len__(self) -> int:
         return len(self.__keys)
 
-    def __recursiveBind(self, target:object, source:'Configuration') -> any:
+    def __recursiveBind(self, target:object, source:ForwardRef('Configuration')|dict) -> any:
         targetTypeHints = get_type_hints(target)
         for aname in dir(target):
             if aname.startswith('_'):
@@ -59,14 +59,11 @@ class Configuration:
             if isinstance(lval, types.FunctionType) or isinstance(lval, types.MethodType):
                 continue
             ahint = targetTypeHints.get(aname)
-            ahintstr = str(ahint)
             rval = source.get(aname)
             if isinstance(rval, Configuration):
-                if ahint is dict or ahintstr.startswith('dict['):
+                if hasattr(ahint, '__origin__') and issubclass(ahint.__origin__, dict):
                     lval = rval.toDictionary()
                     setattr(target, aname, lval)
-                elif ahint is list or ahintstr.startswith('list['):
-                    raise ConfigurationException(f'lval ({ahint!r}) is incompatible with rval (Configuration)')
                 else:
                     if lval == None:
                         lval = ahint()
@@ -83,11 +80,34 @@ class Configuration:
                     v = str(rval)
                     setattr(target, aname, v)
                 else:
-                    # naive behavior
-                    setattr(target, aname, rval)
+                    if hasattr(ahint, '__origin__') and issubclass(ahint.__origin__, list):
+                        elementType = ahint.__args__[0]
+                        l = ahint()
+                        for e in rval:
+                            v = self.__recursiveBindType(elementType, e)
+                            l.append(v)
+                        setattr(target, aname, l)
+                    else:
+                        # naive behavior
+                        setattr(target, aname, rval)
             else:
                 setattr(target, aname, None)
         return target
+
+    def __recursiveBindType(self, elementType:type, source:any) -> any:
+        if isinstance(source, elementType):
+            return source
+        elif elementType is float:
+            return float(source)
+        elif elementType is int:
+            return int(source)
+        elif elementType is str:
+            return str(source)
+        elif isinstance(source, Configuration | dict):
+            v = elementType()
+            return self.__recursiveBind(v, source)       
+        else:
+            raise ConfigurationException(f'Recursive bind to type `{elementType}` from `{type(source)}` is not supported.')
 
     def __scrub_key(self, key:str) -> str:
         """Scrubs a key for use as an attribute/identifier according to the Python lexer/standard."""
@@ -123,7 +143,12 @@ class Configuration:
         if key == None:
             return self.__recursiveBind(target, self)
         else:
-            return self.__recursiveBind(target, self.get(key))
+            source = self.get(key)
+            sourceType = type(source)
+            if sourceType is Configuration or sourceType is dict:
+                return self.__recursiveBindFromConfig(target, source)
+            else:
+                raise ConfigurationException(f'Bind of source type `{type(source)}` is not supported.')
 
     def clear(self) -> None:
         while len(self.__keys) > 0:
