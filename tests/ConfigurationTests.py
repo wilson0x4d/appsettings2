@@ -34,7 +34,7 @@ class ConfigurationTests(unittest.TestCase):
     def test_CanWritePeriodKeys(self):
         config = appsettings2.Configuration()
         config.set('THIS.IS_A.TEST', 5)
-        self.assertEqual(5, config.THIS.IS_A.TEST)
+        self.assertEqual(5, config.THIS_IS_A_TEST)
 
     def test_CanReadPeriodKeys(self):
         config = appsettings2.Configuration()
@@ -45,9 +45,9 @@ class ConfigurationTests(unittest.TestCase):
     def test_CanReadWriteMixedKeys(self):
         config = appsettings2.Configuration()
         config.set('THIS:IS_A.TEST', 5)
-        v = config.get('THIS.IS_A__TEST')
+        v = config.get('THIS__IS_A.TEST')
         self.assertEqual(5, v)
-        self.assertEqual(5, config.THIS.IS_A.TEST)
+        self.assertEqual(5, config.THIS.IS_A_TEST)
 
     def test_IsDictionaryLike(self):
         config = appsettings2.Configuration()

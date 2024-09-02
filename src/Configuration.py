@@ -31,7 +31,7 @@ class Configuration:
             self.__keys.pop(key)
 
     def __getitem__(self, key:str) -> any:
-        parts = key.replace('__', '.').replace(':', '.').split('.')
+        parts = key.replace(':', '__').split('__')
         o = self
         for part in parts:
             if o == self:
@@ -111,9 +111,7 @@ class Configuration:
 
     def __scrub_key(self, key:str) -> str:
         """Scrubs a key for use as an attribute/identifier according to the Python lexer/standard."""
-        key = key\
-            .replace('__', '.')\
-            .replace(':', '.')
+        key = key.replace(':', '__').replace('.', '_')
         return key if None == self.__key_scrub_re else \
             self.__key_scrub_re.sub(
                 self.__scrub_uc,
@@ -157,7 +155,7 @@ class Configuration:
 
     def get(self, key:str, default:any = None) -> any:
         """Gets the configuration element associated with the specified key."""
-        parts = key.replace('__', '.').replace(':', '.').split('.')
+        parts = key.replace(':', '__').split('__')
         o = self
         for part in parts:
             if o == self:
@@ -192,7 +190,7 @@ class Configuration:
         """Sets the configuration element for the specified key."""
         if self.__normalize:
             key = key.upper()
-        parts = key.replace('__', '.').replace(':', '.').split('.')
+        parts = key.replace(':', '__').split('__')
         o = self
         for i in range(len(parts) - 1):
             if o == self:
