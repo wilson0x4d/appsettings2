@@ -104,13 +104,86 @@ class ConfigurationTests(unittest.TestCase):
         self.assertEqual(1, len(config['test']))
         self.assertEqual(1, config['test']['hierarchy'])
 
-    def test_ToDictionary_MustSucceed(self):
+    def test_ToDictionary_BasicVerification(self):
         config = appsettings2.Configuration()
-        config.set('THIS:IS_A.TEST1', 1)
-        config.set('THIS:IS_A.TEST2', 2.2)
-        config.set('THIS:IS_A.TEST3', "3")
+        config.set('THIS:IS_A__TEST1', 1)
+        config.set('THIS__IS_A:TEST2', 2.2)
+        config.set('THIS__IS_A__TEST3', '3')
+        config.set(
+            'deep_list',
+            [
+                {
+                    'key': 1,
+                    'value': [ 1,2,3 ]
+                },
+                {
+                    'key': 2,
+                    'value': [ 2,3,4 ]
+                },
+                {
+                    'key': 3,
+                    'value': [ 3,4,5 ]
+                },
+            ]
+        )
         d = config.toDictionary()
         self.assertIsNotNone(d)
+        self.assertEqual(1, config.THIS.IS_A.TEST1)
+        self.assertEqual(2.2, config.THIS.IS_A.TEST2)
+        self.assertEqual('3', config.THIS.IS_A.TEST3)
+        self.assertIsInstance(config.deep_list, list)
+        i = 0
+        for e in config.deep_list:
+            i = i + 1
+            self.assertIsInstance(e, appsettings2.Configuration)
+            self.assertEqual(i, e.key)
+            self.assertIsInstance(e.value, list)
+            for k in range(3):
+                self.assertEqual(i+k, e.value[k])
+
+
+    def test_FromDictionary_BasicVerification(self):
+        expected = {
+            'this': {
+                'is_a': {
+                    'test1': 1,
+                    'test2': 2.2,
+                    'test3': '3'
+                }
+            },
+            'deep_list': [
+                {
+                    'key': 1,
+                    'value': [ 1,2,3 ]
+                },
+                {
+                    'key': 2,
+                    'value': [ 2,3,4 ]
+                },
+                {
+                    'key': 3,
+                    'value': [ 3,4,5 ]
+                },
+            ]
+        }
+        config = appsettings2.Configuration.fromDictionary(expected)
+        self.assertIsInstance(config, appsettings2.Configuration)
+        self.assertIsInstance(config.this, appsettings2.Configuration)
+        self.assertIsInstance(config.this.is_a, appsettings2.Configuration)
+        self.assertEqual(1, config.this.is_a.test1)
+        self.assertEqual(2.2, config.this.is_a.test2)
+        self.assertEqual('3', config.this.is_a.test3)
+        self.assertIsInstance(config.deep_list, list)
+        i = 0
+        for e in config.deep_list:
+            i = i + 1
+            self.assertIsInstance(e, appsettings2.Configuration)
+            self.assertEqual(i, e.key)
+            self.assertIsInstance(e.value, list)
+            for k in range(3):
+                self.assertEqual(i+k, e.value[k])
+        actual = config.toDictionary()
+        self.assertDictEqual(expected, actual)
 
     def __getSubsetConfiguration(self):
         # "subset configurations" are a set of

@@ -60,7 +60,18 @@ class Configuration:
                 continue
             ahint = targetTypeHints.get(aname)
             rval = source.get(aname)
-            if isinstance(rval, Configuration):
+            if rval == None:
+                setattr(target, aname, None)
+            elif ahint is float:
+                v = float(rval)
+                setattr(target, aname, v)
+            elif ahint is int:
+                v = int(rval)
+                setattr(target, aname, v)
+            elif ahint is str:
+                v = str(rval)
+                setattr(target, aname, v)
+            elif isinstance(rval, Configuration):
                 if hasattr(ahint, '__origin__') and issubclass(ahint.__origin__, dict):
                     lval = rval.toDictionary()
                     setattr(target, aname, lval)
@@ -69,29 +80,17 @@ class Configuration:
                         lval = ahint()
                         setattr(target, aname, lval)
                     self.__recursiveBind(lval, rval)
-            elif rval != None:
-                if ahint is float:
-                    v = float(rval)
-                    setattr(target, aname, v)
-                elif ahint is int:
-                    v = int(rval)
-                    setattr(target, aname, v)
-                elif ahint is str:
-                    v = str(rval)
-                    setattr(target, aname, v)
-                else:
-                    if hasattr(ahint, '__origin__') and issubclass(ahint.__origin__, list):
-                        elementType = ahint.__args__[0]
-                        l = ahint()
-                        for e in rval:
-                            v = self.__recursiveBindType(elementType, e)
-                            l.append(v)
-                        setattr(target, aname, l)
-                    else:
-                        # naive behavior
-                        setattr(target, aname, rval)
             else:
-                setattr(target, aname, None)
+                if hasattr(ahint, '__origin__') and issubclass(ahint.__origin__, list):
+                    elementType = ahint.__args__[0]
+                    l = ahint()
+                    for e in rval:
+                        v = self.__recursiveBindType(elementType, e)
+                        l.append(v)
+                    setattr(target, aname, l)
+                else:
+                    # naive behavior
+                    setattr(target, aname, rval)
         return target
 
     def __recursiveBindType(self, elementType:type, source:any) -> any:
@@ -153,6 +152,16 @@ class Configuration:
             t = self.__keys.popitem()
             delattr(self, t[1])
 
+    @staticmethod
+    def fromDictionary(source:dict, *, normalize:bool = False, scrubkeys:bool = False) -> 'Configuration':
+        config:Configuration = Configuration(normalize=normalize, scrubkeys=scrubkeys)
+        for kvp in source.items():
+            v = kvp[1]
+            if issubclass(type(v), dict):
+                v = Configuration.fromDictionary(v, normalize=normalize, scrubkeys=scrubkeys)
+            config.set(kvp[0], v)
+        return config
+
     def get(self, key:str, default:any = None) -> any:
         """Gets the configuration element associated with the specified key."""
         parts = key.replace(':', '__').split('__')
@@ -209,6 +218,17 @@ class Configuration:
                     o = c
                 else:
                     o = o.get(parts[i])
+        vtype = type(value)
+        if issubclass(vtype, dict):
+            value = Configuration.fromDictionary(value, normalize=self.__normalize, scrubkeys=self.__key_scrub_re != None)
+        elif issubclass(vtype, list):
+            l = []
+            for e in value:
+                if issubclass(type(e), dict):
+                    l.append(Configuration.fromDictionary(e, normalize=self.__normalize, scrubkeys=self.__key_scrub_re != None))
+                else:
+                    l.append(e)
+            value = l
         key = parts[-1]
         if o == self:
             k = self.__keys.get(key.upper())
@@ -227,6 +247,14 @@ class Configuration:
             v = getattr(self, self.__scrub_key(k))
             if isinstance(v, Configuration):
                 result[k] = v.toDictionary()
+            elif issubclass(type(v), list):
+                tmp = []
+                for e in v:
+                    if isinstance(e, Configuration):
+                        tmp.append(e.toDictionary())
+                    else:
+                        tmp.append(e)
+                result[k] = tmp
             else:
                 result[k] = v
         return result
