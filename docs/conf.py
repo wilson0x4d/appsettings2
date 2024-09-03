@@ -21,8 +21,7 @@ release = '1.0'
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.intersphinx'
+    'sphinx.ext.autodoc'
 ]
 
 templates_path = ['_templates']
@@ -35,7 +34,6 @@ html_theme = 'alabaster'
 html_static_path = ['_static']
 
 #
-#autosummary_generate = True
 autoclass_content = "both"
 html_show_sourcelink = False
 autodoc_inherit_docstrings = True
