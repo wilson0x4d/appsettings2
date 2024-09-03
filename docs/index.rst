@@ -19,15 +19,17 @@ Construct a :py:class:`~appsettings2.ConfigurationBuilder` instance, add one or 
 
 .. code:: python
 
-    from appsettings2 import *
-    from appsettings2.providers import *
+   from appsettings2 import *
+   from appsettings2.providers import *
 
-    def get_configuration() -> Configuration:
-        return ConfigurationBuilder()\
-            .addProvider(JsonConfigurationProvider(f'appsettings.json'))\
-            .addProvider(JsonConfigurationProvider(f'appsettings.Development.json', required=False))\
-            .addProvider(EnvironmentConfigurationProvider())\
-            .build()
+   config = ConfigurationBuilder()\
+      .addProvider(JsonConfigurationProvider(f'appsettings.json'))\
+      .addProvider(JsonConfigurationProvider(f'appsettings.Development.json', required=False))\
+      .addProvider(EnvironmentConfigurationProvider())\
+      .build()
+   
+   print(config)
+
 
 Provider Order
 --------------
