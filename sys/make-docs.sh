@@ -5,7 +5,6 @@ set -eo pipefail
 source .venv/bin/activate
 if [[ "$1" == "" ]]; then
     pip install sphinx
-    pip install myst-parser
 fi
 cd docs/
 make html

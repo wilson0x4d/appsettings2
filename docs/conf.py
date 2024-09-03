@@ -13,8 +13,8 @@ import src
 sys.modules['appsettings2'] = src
 
 project = 'appsettings2'
-copyright = '2024, Shaun Wilson (mrshaunwilson@msn.com)'
-author = 'Shaun Wilson (mrshaunwilson@msn.com)'
+copyright = '2024, Shaun Wilson'
+author = 'Shaun Wilson'
 release = '1.0'
 
 # -- General configuration ---------------------------------------------------

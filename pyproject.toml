@@ -19,7 +19,7 @@ packages = [
 ]
 
 [tool.poetry.urls]
-documentation = "https://github.com/wilson0x4d/appsettings2/blob/master/README.md"
+documentation = "https://appsettings2.readthedocs.io/"
 homepage = "https://github.com/wilson0x4d/appsettings2"
 repository = "https://github.com/wilson0x4d/appsettings2.git"
 
