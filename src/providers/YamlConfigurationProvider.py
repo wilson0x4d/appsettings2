@@ -13,11 +13,21 @@ type FileDescriptor = int
 type any = Any
 
 class YamlConfigurationProvider(ConfigurationProvider):
-    """Processes a yaml string, yaml file, or yaml stream and provides the content as Configuration data."""
+    """
+    Populates structured configuration data from YAML.
+    """
 
     __obj:dict
 
     def __init__(self, filepath:str = None, *, yaml:str = None, fd:FileDescriptor = None, required:bool = True):
+        """
+        The `filepath`, `yaml`, and `fd` parameters are mutually exclusive.
+        
+        :param filepath: Optional path to a TAML file used as a configuration source, defaults to None.
+        :param yaml: Optional TAML string used as a configuration source, defaults to None.
+        :param fd: Optional file descriptor (int) to be used as a configuration source, defaults to None.
+        :param required: Optional parameter indicating whether the configuration source will raise `ConfigurationException` if the specified configuration source is missing, defaults to True.
+        """
         if filepath:
             if os.path.isfile(filepath):
                 with open(filepath, 'rt') as file:

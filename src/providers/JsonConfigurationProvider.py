@@ -12,11 +12,21 @@ type FileDescriptor = int
 type any = Any
 
 class JsonConfigurationProvider(ConfigurationProvider):
-    """Processes a json string, json file, or json stream and provides the content as Configuration data."""
+    """
+    Populates structured configuration data from JSON.
+    """
 
     __obj:dict
 
     def __init__(self, filepath:str = None, *, json:str = None, fd:FileDescriptor = None, required:bool = True):
+        """
+        The `filepath`, `json`, and `fd` parameters are mutually exclusive.
+        
+        :param filepath: Optional path to a JSON file used as a configuration source, defaults to None.
+        :param json: Optional JSON string used as a configuration source, defaults to None.
+        :param fd: Optional file descriptor (int) to be used as a configuration source, defaults to None.
+        :param required: Optional parameter indicating whether the configuration source will raise `ConfigurationException` if the specified configuration source is missing, defaults to True.
+        """
         if filepath:
             if os.path.isfile(filepath):
                 with open(filepath, 'rt') as file:

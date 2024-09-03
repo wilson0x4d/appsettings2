@@ -12,11 +12,21 @@ type FileDescriptor = int
 type any = Any
 
 class TomlConfigurationProvider(ConfigurationProvider):
-    """Processes a toml string, toml file, or toml stream and provides the content as Configuration data."""
+    """
+    Populates structured configuration data from TOML.
+    """
 
     __obj:dict
 
     def __init__(self, filepath:str = None, *, toml:str = None, fd:FileDescriptor = None, required:bool = True):
+        """
+        The `filepath`, `toml`, and `fd` parameters are mutually exclusive.
+        
+        :param filepath: Optional path to a TOML file used as a configuration source, defaults to None.
+        :param toml: Optional TOML string used as a configuration source, defaults to None.
+        :param fd: Optional file descriptor (int) to be used as a configuration source, defaults to None.
+        :param required: Optional parameter indicating whether the configuration source will raise `ConfigurationException` if the specified configuration source is missing, defaults to True.
+        """
         if filepath:
             if os.path.isfile(filepath):
                 with open(filepath, 'rt') as file:

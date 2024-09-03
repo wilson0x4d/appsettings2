@@ -12,14 +12,19 @@ type any = typing.Any
 Configuration = typing.ForwardRef('Configuration')
 
 class Configuration:
-    """A configuration class which creates a layer of indirection between configuration providers and configuration consumers."""
+    """
+    The :py:class:`~appsettings2.Configuration` class is how applications access configuration data populated by :py:class:`~appsettings2.providers.ConfigurationProvider` objects. It exposes configuration data through dynamic object attributes as well as a dictionary-like interface.
+    """
 
     __key_scrub_re:re.Pattern
     __keys:dict[str, str]
     __normalize:bool
 
     def __init__(self, *, normalize:bool = False, scrubkeys:bool = False):
-        """By default keys are ingest as-is, pass `True` for `normalize` to normalize kets to lower case."""
+        """
+        :param normalize: Option indicating whether or not attribute names should be normalized to upper-case on the resulting :py:class:`~appsettings2.Configuration` object, defaults to False.
+        :param scrubkeys: Option indicating whether or not attribute names (and key names) should be scrubbed to be compatible with the Python lexer, defaults to False.
+        """
         self.__keys = {}
         self.__normalize = normalize
         self.__key_scrub_re = None if not scrubkeys else re.compile(r'[^A-Za-z0-9_]', re.IGNORECASE | re.UNICODE)
@@ -32,6 +37,12 @@ class Configuration:
             self.__keys.pop(key)
 
     def __getitem__(self, key:str) -> any:
+        """
+        Gets the configuration data associated with the specified `key`.
+
+        :param key: The configuration key to get data for. Supports `__` and `:` hierarchical delimiters.
+        :return: The configuration data associated with `key`, otherwise raises `KeyError` if `key` was not found.
+        """
         parts = key.replace(':', '__').split('__')
         o = self
         for part in parts:
@@ -152,9 +163,14 @@ class Configuration:
         return json.dumps(self.toDictionary())
 
     def bind(self, target:object, key:str|None = None) -> any:
-        """Binds the configuration values into the target object.
-        
-        Can optionally specify a configuration key to bind from."""
+        """
+        Binds the configuration values into the target object.
+        Can optionally specify a configuration key to bind from.
+
+        :param target: The object to bind configuration data into.
+        :param key: An optional confguration key to bind to, defaults to None which binds to the configuration root.
+        :return: The original `target` object, modified in-place.
+        """
         if not target:
             raise ConfigurationException('Missing required argument: target')
         if key == None:
@@ -174,6 +190,14 @@ class Configuration:
 
     @staticmethod
     def fromDictionary(source:dict, *, normalize:bool = False, scrubkeys:bool = False) -> Configuration:
+        """
+        Constructs a :py:class:`~appsettings2.Configuration` instance from the supplied dictionary `source`.
+
+        :param source: The dictionary object to populate from.
+        :param normalize: Option indicating whether or not attribute names should be normalized to upper-case on the resulting :py:class:`~appsettings2.Configuration` object, defaults to False.
+        :param scrubkeys: Option indicating whether or not attribute names (and key names) should be scrubbed to be compatible with the Python lexer, defaults to False.
+        :return: A :py:class:`~appsettings2.Configuration` object derived from the `source` parameter.
+        """
         config:Configuration = Configuration(normalize=normalize, scrubkeys=scrubkeys)
         for kvp in source.items():
             v = kvp[1]
@@ -183,7 +207,13 @@ class Configuration:
         return config
 
     def get(self, key:str, default:any = None) -> any:
-        """Gets the configuration element associated with the specified key."""
+        """
+        Gets the configuration data associated with the specified `key`.
+
+        :param key: The configuration key to get data for. Supports `__` and `:` hierarchical delimiters.
+        :param default: The value to be returned if `key` does not exist, defaults to None
+        :return: The configuration data associated with `key`, otherwise `default`.
+        """
         parts = key.replace(':', '__').split('__')
         o = self
         for part in parts:
@@ -216,7 +246,12 @@ class Configuration:
         return value
 
     def set(self, key:str, value:any) -> None:
-        """Sets the configuration element for the specified key."""
+        """
+        Sets the configuration data for the specified `key`.
+
+        :param key: The key to associate the configuration data.
+        :param value: The configuration data so be associated with `key`.
+        """
         if self.__normalize:
             key = key.upper()
         parts = key.replace(':', '__').split('__')
@@ -261,7 +296,11 @@ class Configuration:
             o.set(key, value)
 
     def toDictionary(self) -> dict:
-        """Creates a dictionary from the configuration object."""
+        """
+        Creates a dictionary from the `Configuration` object.
+
+        :return: A dictionary containing all keys and their associated values, in a structure that mimics the structure if the data contained within the `Configuration` object.
+        """
         result = {}
         for k in self.__keys.values():
             v = getattr(self, self.__scrub_key(k))

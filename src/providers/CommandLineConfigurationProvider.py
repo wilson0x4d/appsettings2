@@ -6,11 +6,16 @@ from ..Configuration import Configuration
 import sys
 
 class CommandLineConfigurationProvider(ConfigurationProvider):
-    """Processes the command-line and provides args as Configuration data."""
+    """
+    Populates configuration data from Command-Line arguments.
+    """
 
     __argv:list[str]
 
     def __init__(self, argv:list[str] = None):
+        """
+        :param argv: Optional arg list used in lieu of `sys.argv`, defaults to None.
+        """
         self.__argv = argv if argv != None else sys.argv
 
     def populateConfiguration(self, configuration:Configuration):

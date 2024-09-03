@@ -6,7 +6,9 @@ from ..Configuration import Configuration
 import os
 
 class EnvironmentConfigurationProvider(ConfigurationProvider):
-    """Processes environment variables and provides them as Configuration data."""
+    """
+    Populates configuration data from Environment variables.
+    """
 
     def populateConfiguration(self, configuration:Configuration):
         for k in os.environ:
