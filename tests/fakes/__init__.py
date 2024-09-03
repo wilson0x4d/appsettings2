@@ -3,3 +3,4 @@
 
 from .FakeComplexTypes import *
 from .FakeConfigObj import FakeConfigObj
+from .FakePropertyObjects import *

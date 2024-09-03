@@ -5,10 +5,11 @@ from .ConfigurationException import ConfigurationException
 import json
 import re
 import types
-from typing import Any, ForwardRef, get_type_hints
+import typing
 import unicodedata
 
-type any = Any
+type any = typing.Any
+Configuration = typing.ForwardRef('Configuration')
 
 class Configuration:
     """A configuration class which creates a layer of indirection between configuration providers and configuration consumers."""
@@ -50,8 +51,10 @@ class Configuration:
     def __len__(self) -> int:
         return len(self.__keys)
 
-    def __recursiveBind(self, target:object, source:ForwardRef('Configuration')|dict) -> any:
-        targetTypeHints = get_type_hints(target)
+    def __recursiveBind(self, target:object, source:Configuration|dict) -> any:
+        if target == None:
+            return None
+        targetTypeHints = typing.get_type_hints(target)
         for aname in dir(target):
             if aname.startswith('_'):
                 continue
@@ -62,7 +65,25 @@ class Configuration:
             rval = source.get(aname)
             if rval == None:
                 setattr(target, aname, None)
-            elif ahint is float:
+            elif ahint == None:
+                # attr has no type hints, attempt to treat as a property
+                prop = getattr(type(target), aname)
+                if hasattr(prop, 'fget') and getattr(prop, 'fget') != None:
+                    lval = getattr(target, aname)
+                if lval == None and ((not hasattr(prop, 'fset')) or (getattr(prop, 'fget') == None)):
+                    # NOTE: lval is not settable, not initialized, can't bind
+                    continue
+                phints = typing.get_type_hints(getattr(prop, 'fget'))
+                if phints == None or (not issubclass(type(phints), dict)):
+                    # NOTE: can't get hints from getter, can't bind
+                    continue
+                ahint = phints.get('return')
+                if ahint == None:
+                    # NOTE: fget hint missing return spec, can't bind
+                    continue
+            else:
+                lval = getattr(target, aname)
+            if ahint is float:
                 v = float(rval)
                 setattr(target, aname, v)
             elif ahint is int:
@@ -72,7 +93,7 @@ class Configuration:
                 v = str(rval)
                 setattr(target, aname, v)
             elif isinstance(rval, Configuration):
-                if hasattr(ahint, '__origin__') and issubclass(ahint.__origin__, dict):
+                if typing.get_origin(ahint) is dict:
                     lval = rval.toDictionary()
                     setattr(target, aname, lval)
                 else:
@@ -80,17 +101,16 @@ class Configuration:
                         lval = ahint()
                         setattr(target, aname, lval)
                     self.__recursiveBind(lval, rval)
+            elif typing.get_origin(ahint) is list:
+                elementType = ahint.__args__[0]
+                if lval == None:
+                    lval = ahint()
+                    setattr(target, aname, lval)
+                for e in rval:
+                    v = self.__recursiveBindType(elementType, e)
+                    lval.append(v)
             else:
-                if hasattr(ahint, '__origin__') and issubclass(ahint.__origin__, list):
-                    elementType = ahint.__args__[0]
-                    l = ahint()
-                    for e in rval:
-                        v = self.__recursiveBindType(elementType, e)
-                        l.append(v)
-                    setattr(target, aname, l)
-                else:
-                    # naive behavior
-                    setattr(target, aname, rval)
+                setattr(target, aname, rval)
         return target
 
     def __recursiveBindType(self, elementType:type, source:any) -> any:
@@ -143,7 +163,7 @@ class Configuration:
             source = self.get(key)
             sourceType = type(source)
             if sourceType is Configuration or sourceType is dict:
-                return self.__recursiveBindFromConfig(target, source)
+                return self.__recursiveBind(target, source)
             else:
                 raise ConfigurationException(f'Bind of source type `{type(source)}` is not supported.')
 
@@ -153,7 +173,7 @@ class Configuration:
             delattr(self, t[1])
 
     @staticmethod
-    def fromDictionary(source:dict, *, normalize:bool = False, scrubkeys:bool = False) -> 'Configuration':
+    def fromDictionary(source:dict, *, normalize:bool = False, scrubkeys:bool = False) -> Configuration:
         config:Configuration = Configuration(normalize=normalize, scrubkeys=scrubkeys)
         for kvp in source.items():
             v = kvp[1]
@@ -241,7 +261,7 @@ class Configuration:
             o.set(key, value)
 
     def toDictionary(self) -> dict:
-        """Projects a dictionary from the configuration object."""
+        """Creates a dictionary from the configuration object."""
         result = {}
         for k in self.__keys.values():
             v = getattr(self, self.__scrub_key(k))

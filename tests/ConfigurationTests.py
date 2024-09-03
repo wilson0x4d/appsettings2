@@ -361,3 +361,63 @@ class ConfigurationTests(unittest.TestCase):
             self.assertIsInstance(e, FakeKeyValuePair)
             self.assertEqual(f'key{i}', e.key)
             self.assertEqual(f'value{i}', e.value)
+
+    def test_SupportsUninitializedSettablePropertyBinding(self):
+        config = appsettings2.Configuration()
+        config.set(
+            'keyValuePairs',
+            [
+                {
+                    'key': 1,
+                    'value': [ 1,2,3 ]
+                },
+                {
+                    'key': 2,
+                    'value': [ 2,3,4 ]
+                },
+                {
+                    'key': 3,
+                    'value': [ 3,4,5 ]
+                },
+            ]
+        )
+        obj:FakeUninitializedSettablePropObject = config.bind(FakeUninitializedSettablePropObject())
+        self.assertIsNotNone(obj.keyValuePairs)
+        self.assertEqual(3, len(obj.keyValuePairs))
+        i = 0
+        for e in obj.keyValuePairs:
+            i = i + 1
+            self.assertIsInstance(e, FakeKeyValuePropPair)
+            self.assertEqual(str(i), e.key)
+            for k in range(3):
+                self.assertEqual(i+k, e.value[k])
+
+    def test_SupportsInitializedSettablePropertyBinding(self):
+        config = appsettings2.Configuration()
+        config.set(
+            'keyValuePairs',
+            [
+                {
+                    'key': 1,
+                    'value': [ 1,2,3 ]
+                },
+                {
+                    'key': 2,
+                    'value': [ 2,3,4 ]
+                },
+                {
+                    'key': 3,
+                    'value': [ 3,4,5 ]
+                },
+            ]
+        )
+        obj:FakeInitializedNonSettablePropObject = config.bind(FakeInitializedNonSettablePropObject())
+        self.assertIsNotNone(obj.keyValuePairs)
+        self.assertEqual(3, len(obj.keyValuePairs))
+        i = 0
+        for e in obj.keyValuePairs:
+            i = i + 1
+            self.assertIsInstance(e, FakeKeyValuePropPair)
+            self.assertEqual(str(i), e.key)
+            for k in range(3):
+                self.assertEqual(i+k, e.value[k])
