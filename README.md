@@ -1,16 +1,10 @@
 # `appsettings2`
 
-A python library that unifies configuration sources into a Configuration object that can be bound to complex types, or accessed directly for configuration data.
-
-## Why?
-
-Because I write a lot of containerized applications where I typically supply configuration settings using a combination of Configuration Files and Environment Variables.
-
-When I debug those applications I often need to override Configuration using Command-Line Arguments, Configuration Files, Environment Variables, or a combination thereof.
+A python library that unifies configuration sources into a `Configuration` object that can be bound to complex types, or accessed directly for configuration data.
 
 ## Usage
 
-Construct a `ConfigurationBuilder` instance, add one or more `ConfigurationProvider` instances to it, and then use it to build a `Configuration` object containing your unified configuration data.
+Construct a `ConfigurationBuilder` instance, add one or more `ConfigurationProvider` instances to it, and then use it to build a `Configuration` object containing unified configuration data.
 
 ```python
 from appsettings2 import *
@@ -36,9 +30,9 @@ Given the example above, this means that configuration data provided via Environ
 
 There are multiple ways of accessing Configuration data:
 
-* Attributes attached to the `Configuration` object which represent your configuration data.
-* Calling `get(...)` and `set(...)` methods, passing in the key of the configuration data.
-* A dictionary-like interface exposing configuration data from an indexer.
+* Using dynamic attributes which represent your configuration data.
+* Using configuration keys by calling `get(...)` and `set(...)` methods.
+* A dictionary-like interface exposing configuration data via indexer syntax.
 * Binding the configuration data to a class/object you define.
 
 ### Direct Access via `Configuration` object
@@ -105,7 +99,7 @@ connectionStrings = configuration.bind(ConnStrs(), 'ConnectionStrings')
 print(connectionStrings.SampleDB)
 ```
 
-Lastly, a cautious eye may have noticed that the input configuration and class definition have a casing difference. `SampleDb` vs `SampleDB` -- by design binding is case-insensitive. This ensures that automation systems which can only communicate in upper-case can still support developers that prefer to have readable code ... without burdening the developers with extra work.
+Lastly, a cautious eye may have noticed that the input configuration and class definition have a casing difference. `SampleDb` vs `SampleDB` -- by design binding is case-insensitive. This ensures that automation/configuration systems which can only communicate in upper-case can be used to populate by complex objects which follow a different naming convention without burdening devs/devops with extra work.
 
 ### Accessing `Configuration` Dictionary-like
 
