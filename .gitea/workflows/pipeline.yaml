@@ -3,14 +3,14 @@ run-name: ${{ gitea.actor }} (rn)
 on:
   workflow_dispatch:
   workflow_call:
-  push:
-    branches:
-    - master
-    paths:
-    - '.gitea/workflows/pipeline.yaml'
-    - 'src/**'
-    - 'pyproject.toml'
-    - 'README.md'
+  # push:
+  #   branches:
+  #   - master
+  #   paths:
+  #   - '.gitea/workflows/pipeline.yaml'
+  #   - 'src/**'
+  #   - 'pyproject.toml'
+  #   - 'README.md'
 jobs:
   publish:
     name: "Publish Package"
