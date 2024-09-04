@@ -4,7 +4,7 @@ Quick Start
 Installation
 ------------
 
-You can install the library from `PyPI <https://pypi.org/project/appsettings2/>`_ using typical methods, such as `pip`:
+You can install the library from `PyPI <https://pypi.org/project/appsettings2/>`_ using typical methods, such as ``pip``:
 
 .. code:: bash
 
@@ -22,8 +22,8 @@ Using :py:mod:`~appsettings2` is straightforward:
 .. code:: python
 
    config = ConfigurationBuilder()\
-      .addJson(f'appsettings.json')\
-      .addJson'appsettings.Development.json', required=False)\
+      .addJson('appsettings.json')\
+      .addJson('appsettings.Development.json', required=False)\
       .addEnvironment()\
       .build()
 
