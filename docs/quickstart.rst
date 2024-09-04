@@ -1,6 +1,18 @@
 Quick Start
 ============
 
+Installation
+------------
+
+You can install the library from `PyPI <https://pypi.org/project/appsettings2/>`_ using typical methods, such as `pip`:
+
+.. code:: bash
+
+   python3 -m pip install appsettings2
+
+Usage
+-----
+
 Using :py:mod:`~appsettings2` is straightforward:
 
 1. Construct a :py:class:`~appsettings2.ConfigurationBuilder` object.
@@ -10,9 +22,9 @@ Using :py:mod:`~appsettings2` is straightforward:
 .. code:: python
 
    config = ConfigurationBuilder()\
-      .addProvider(JsonConfigurationProvider(f'appsettings.json'))\
-      .addProvider(JsonConfigurationProvider(f'appsettings.Development.json', required=False))\
-      .addProvider(EnvironmentConfigurationProvider())\
+      .addJson(f'appsettings.json')\
+      .addJson'appsettings.Development.json', required=False)\
+      .addEnvironment()\
       .build()
 
 Provider Order
@@ -65,6 +77,6 @@ On the developer workstation, the resulting :py:class:`~appsettings2.Configurati
     print(config.AppSettings.EnableSwagger) # outputs: True
 
 
-Additionally, because :py:class:`~appsettings2.providers.EnvironmentConfigurationProvider` is added to the builder last it is possible to use Environment variables to overwrite any configuration values which were populated by either of the JSON providers.
+Additionally, because :py:class:`~appsettings2.providers.EnvironmentConfigurationProvider` is added to the builder last (via :py:meth:`~appsettings2.ConfigurationBuilder.addEnvironment`) it is possible to use Environment variables to overwrite any configuration values which were populated by either of the JSON providers.
 
 This makes it easy for developers to implement a default configuration that devops can then override as part of Environment config. This is a popular approach for configuring environment-specific settings without leaking those details into source control, particularly useful for keeping secrets like API keys and production database details out of source control.

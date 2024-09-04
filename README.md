@@ -2,13 +2,13 @@
 
 A python library that unifies configuration sources into a `Configuration` object that can be bound to complex types, or accessed directly for configuration data.
 
-It can be installed from PyPI through the usual methods.
+It can be installed from [PyPI](https://pypi.org/project/appsettings2/) through the usual methods.
 
 This README is a high-level overview of core features. For complete documentation please visit [https://appsettings2.readthedocs.io/](https://appsettings2.readthedocs.io/).
 
 ## Quick Start
 
-Using `~appsettings2` is straightforward:
+Using `appsettings2` is straightforward:
 
 1. Construct a `ConfigurationBuilder` object.
 2. Add one or more `ConfigurationProvider` objects to it.
