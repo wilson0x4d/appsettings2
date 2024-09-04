@@ -3,9 +3,10 @@
 
 from .Configuration import Configuration
 from .ConfigurationException import ConfigurationException
-from .providers import ConfigurationProvider
+from .providers import *
 import typing
 
+type FileDescriptor = int
 type any = typing.Any
 
 class ConfigurationBuilder:
@@ -31,12 +32,68 @@ class ConfigurationBuilder:
         Can be called multiple times to add multiple providers.
 
         :param provider: A class implementing the `ConfigurationProvider` abstract class.
-        :return: Returns `ConfigurationBuilder` for method chaining.
+        :return: Returns :py:class:`~appsettings2.ConfigurationBuilder` for method chaining.
         """
         if provider == None or not issubclass(type(provider), ConfigurationProvider):
             raise ConfigurationException('Missing/Invalid argument: provider')
         self.__providers.append(provider)
         return self
+    
+    def addCommandLine(self, argv=None) -> 'ConfigurationBuilder':
+        """
+        Adds a :py:class:`~appsettings2.providers.CommandLineConfigurationProvider`, optionally overriding ``argv``.
+
+        :param argv: Optional override of ``sys.argv``, defaults to None.
+        :return: Returns :py:class:`~appsettings2.ConfigurationBuilder` for method chaining.
+        """
+        return self.addProvider(CommandLineConfigurationProvider(argv=argv))
+
+    def addEnvironment(self) -> 'ConfigurationBuilder':
+        """
+        Adds a :py:class:`~appsettings2.providers.EnvironmentConfigurationProvider`.
+
+        :return: Returns :py:class:`~appsettings2.ConfigurationBuilder` for method chaining.
+        """
+        return self.addProvider(EnvironmentConfigurationProvider())
+
+    def addJson(self, filepath:str = None, *, json:str = None, fd:FileDescriptor = None, required:bool = True) -> 'ConfigurationBuilder':
+        """
+        Adds a :py:class:`~appsettings2.providers.JsonConfigurationProvider`.
+        The `filepath`, `json`, and `fd` parameters are mutually exclusive.
+        
+        :param filepath: Optional path to a JSON file used as a configuration source, defaults to None.
+        :param json: Optional JSON string used as a configuration source, defaults to None.
+        :param fd: Optional file descriptor (int) to be used as a configuration source, defaults to None.
+        :param required: Optional parameter indicating whether the configuration source will raise `ConfigurationException` if the specified configuration source is missing, defaults to True.
+        :return: Returns :py:class:`~appsettings2.ConfigurationBuilder` for method chaining.
+        """
+        return self.addProvider(JsonConfigurationProvider(filepath=filepath, json=json, fd=fd, required=required))
+
+    def addToml(self, filepath:str = None, *, toml:str = None, fd:FileDescriptor = None, required:bool = True) -> 'ConfigurationBuilder':
+        """
+        Adds a :py:class:`~appsettings2.providers.TomlConfigurationProvider`.
+        The `filepath`, `toml`, and `fd` parameters are mutually exclusive.
+        
+        :param filepath: Optional path to a TOML file used as a configuration source, defaults to None.
+        :param toml: Optional TOML string used as a configuration source, defaults to None.
+        :param fd: Optional file descriptor (int) to be used as a configuration source, defaults to None.
+        :param required: Optional parameter indicating whether the configuration source will raise `ConfigurationException` if the specified configuration source is missing, defaults to True.
+        :return: Returns :py:class:`~appsettings2.ConfigurationBuilder` for method chaining.
+        """
+        return self.addProvider(TomlConfigurationProvider(filepath=filepath, toml=toml, fd=fd, required=required))
+
+    def addYaml(self, filepath:str = None, *, yaml:str = None, fd:FileDescriptor = None, required:bool = True) -> 'ConfigurationBuilder':
+        """
+        Adds a :py:class:`~appsettings2.providers.YamlConfigurationProvider`.
+        The `filepath`, `yaml`, and `fd` parameters are mutually exclusive.
+        
+        :param filepath: Optional path to a YAML file used as a configuration source, defaults to None.
+        :param yaml: Optional YAML string used as a configuration source, defaults to None.
+        :param fd: Optional file descriptor (int) to be used as a configuration source, defaults to None.
+        :param required: Optional parameter indicating whether the configuration source will raise `ConfigurationException` if the specified configuration source is missing, defaults to True.
+        :return: Returns :py:class:`~appsettings2.ConfigurationBuilder` for method chaining.
+        """
+        return self.addProvider(YamlConfigurationProvider(filepath=filepath, yaml=yaml, fd=fd, required=required))
 
     def build(self) -> Configuration:
         """

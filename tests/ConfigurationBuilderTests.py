@@ -38,9 +38,9 @@ class ConfigurationBuilderTests(unittest.TestCase):
         os.environ['env_test'] = '7'
         os.environ['some_obj__env_test'] = '8'
         builder.addProvider(appsettings2.providers.EnvironmentConfigurationProvider())
-        builder.addProvider(appsettings2.providers.JsonConfigurationProvider(filepath='tests/configs/subset.json'))
-        builder.addProvider(appsettings2.providers.TomlConfigurationProvider(filepath='tests/configs/subset.toml'))
-        builder.addProvider(appsettings2.providers.YamlConfigurationProvider(filepath='tests/configs/subset.yaml'))
+        builder.addProvider(appsettings2.providers.JsonConfigurationProvider('tests/configs/subset.json'))
+        builder.addProvider(appsettings2.providers.TomlConfigurationProvider('tests/configs/subset.toml'))
+        builder.addProvider(appsettings2.providers.YamlConfigurationProvider('tests/configs/subset.yaml'))
         configuration = builder.build()
         self.assertIsNotNone(configuration)
 
@@ -52,16 +52,16 @@ class ConfigurationBuilderTests(unittest.TestCase):
         # all providers work as intended when added
         # to the builder.
         builder = appsettings2.ConfigurationBuilder()
-        builder.addProvider(appsettings2.providers.CommandLineConfigurationProvider([
+        builder.addCommandLine([
             'TEST_ARGV=5',
             'some_subobj__TEST_ARGV=6'
-        ]))
+        ])
         os.environ['env_test'] = '7'
         os.environ['some_obj__env_test'] = '8'
-        builder.addProvider(appsettings2.providers.EnvironmentConfigurationProvider())
-        builder.addProvider(appsettings2.providers.JsonConfigurationProvider(filepath='tests/configs/subset.json'))
-        builder.addProvider(appsettings2.providers.TomlConfigurationProvider(filepath='tests/configs/subset.toml'))
-        builder.addProvider(appsettings2.providers.YamlConfigurationProvider(filepath='tests/configs/subset.yaml'))
+        builder.addEnvironment()
+        builder.addJson('tests/configs/subset.json')
+        builder.addToml('tests/configs/subset.toml')
+        builder.addYaml('tests/configs/subset.yaml')
         configuration = builder.build()
         self.assertIsNotNone(configuration)
         self.assertEqual(1, configuration.get('some_float'))
@@ -87,15 +87,15 @@ class ConfigurationBuilderTests(unittest.TestCase):
         # this is a combined function of ConfigurationBuilder
         # and Configuration classes.
         builder = appsettings2.ConfigurationBuilder()
-        builder.addProvider(appsettings2.providers.CommandLineConfigurationProvider([
+        builder.addCommandLine([
             'TEST_ARGV=5',
             'some_subobj__TEST_ARGV=6'
-        ]))
+        ])
         os.environ['env_test'] = '7'
         os.environ['some_obj__env_test'] = '8'
         builder\
-            .addProvider(appsettings2.providers.EnvironmentConfigurationProvider())\
-            .addProvider(appsettings2.providers.JsonConfigurationProvider(filepath='tests/configs/exact.json'))
+            .addEnvironment()\
+            .addJson('tests/configs/exact.json')
         configuration = builder.build()
         self.assertIsNotNone(configuration)
         self.assertEqual(1, configuration.get('some_int'))
@@ -104,7 +104,7 @@ class ConfigurationBuilderTests(unittest.TestCase):
         self.assertEqual(1, configuration.get('some_subobj:some_int'))
         self.assertEqual(1.1, configuration.get('some_subobj:some_float'))
         self.assertEqual('rand1', configuration.get('some_subobj:some_string'))
-        builder.addProvider(appsettings2.providers.TomlConfigurationProvider(filepath='tests/configs/exact.toml'))
+        builder.addProvider(appsettings2.providers.TomlConfigurationProvider('tests/configs/exact.toml'))
         configuration = builder.build()
         self.assertIsNotNone(configuration)
         self.assertEqual(2, configuration.get('some_int'))
@@ -113,7 +113,7 @@ class ConfigurationBuilderTests(unittest.TestCase):
         self.assertEqual(2, configuration.get('some_subobj:some_int'))
         self.assertEqual(2.2, configuration.get('some_subobj:some_float'))
         self.assertEqual('rand2', configuration.get('some_subobj:some_string'))
-        builder.addProvider(appsettings2.providers.YamlConfigurationProvider(filepath='tests/configs/exact.yaml'))
+        builder.addProvider(appsettings2.providers.YamlConfigurationProvider('tests/configs/exact.yaml'))
         configuration = builder.build()
         self.assertIsNotNone(configuration)
         self.assertEqual(3, configuration.get('some_int'))

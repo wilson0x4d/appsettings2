@@ -200,9 +200,9 @@ class ConfigurationTests(unittest.TestCase):
         os.environ['env_test'] = '7'
         os.environ['some_subobj__env_test'] = '8'
         builder.addProvider(appsettings2.providers.EnvironmentConfigurationProvider())
-        builder.addProvider(appsettings2.providers.JsonConfigurationProvider(filepath='tests/configs/subset.json'))
-        builder.addProvider(appsettings2.providers.TomlConfigurationProvider(filepath='tests/configs/subset.toml'))
-        builder.addProvider(appsettings2.providers.YamlConfigurationProvider(filepath='tests/configs/subset.yaml'))
+        builder.addProvider(appsettings2.providers.JsonConfigurationProvider('tests/configs/subset.json'))
+        builder.addProvider(appsettings2.providers.TomlConfigurationProvider('tests/configs/subset.toml'))
+        builder.addProvider(appsettings2.providers.YamlConfigurationProvider('tests/configs/subset.yaml'))
         configuration = builder.build()
         self.assertIsNotNone(configuration)
         self.assertEqual(1, configuration.get('some_float'))
