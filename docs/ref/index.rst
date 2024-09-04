@@ -1,5 +1,5 @@
-``appsettings2`` Reference
-==========================
+Reference
+=========
 
 .. toctree::
     :titlesonly:
@@ -10,5 +10,3 @@
     providers.* <providers/index>
 
 .. automodule:: appsettings2
-
-

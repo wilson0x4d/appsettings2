@@ -44,14 +44,15 @@ html_theme_options = {
     # Toc options
     'collapse_navigation': True,
     'sticky_navigation': True,
-    'navigation_depth': 4,
+    'navigation_depth': 3,
     'includehidden': True,
     'titles_only': True
 }
 
 
 #
-autoclass_content = "both"
+autodoc_member_order = 'bysource'
+autoclass_content = 'both'
 html_show_sourcelink = False
 autodoc_inherit_docstrings = True
 set_type_checking_flag = True

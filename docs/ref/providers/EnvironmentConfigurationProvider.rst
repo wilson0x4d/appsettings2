@@ -3,8 +3,10 @@ providers.EnvironmentConfigurationProvider
 
 The `EnvironmentConfigurationProvider` consumes environment variables as key-value pairs. For example, consider these `bash` exports:
 
-``export ConnectionStrings__SampleDb=my_cxn_string``
-``export ConnectionStrings__AnotherDb=another_cxn_string``
+.. code:: bash
+
+   export ConnectionStrings__SampleDb=my_cxn_string
+   export ConnectionStrings__AnotherDb=another_cxn_string
 
 The above will result in a Configuration object with the following state (represented as JSON):
 

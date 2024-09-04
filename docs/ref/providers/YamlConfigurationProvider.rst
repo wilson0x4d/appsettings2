@@ -1,5 +1,6 @@
-providers.YamlConfigurationProvider
-===================================
+YamlConfigurationProvider
+=========================
+
 The `YamlConfigurationProvider` class allows you to load configuration data from a YAML file, YAML string, or YAML stream. Consider the following YAML:
 
 .. code:: yaml
@@ -10,7 +11,7 @@ The `YamlConfigurationProvider` class allows you to load configuration data from
    ConnectionStrings:
       SampleDb: my_cxn_string
 
-When loaded using `YamlConfigurationProvider` the resulting `Configuration` object will have attribute names and a structure which matches the YAML, consider the following Python code (where "example.yaml" contains the above YAML):
+When loaded using :py:class:`~appsettings2.providers.YamlConfigurationProvider` the resulting :py:class:`~appsettings2.Configuration` object will have attribute names and a structure which matches the YAML, consider the following (where "example.yaml" contains the above YAML):
 
 .. code:: python
 
@@ -21,6 +22,7 @@ When loaded using `YamlConfigurationProvider` the resulting `Configuration` obje
         .addProvider(YamlConfigurationProvider('example.yaml'))\
         .build()
 
+    print(config['LOGGING_DEFAULT']) # outputs: "Debug"
     print(config.ConnectionStrings.SampleDb) # outputs: "my_cxn_string"
 
 ____

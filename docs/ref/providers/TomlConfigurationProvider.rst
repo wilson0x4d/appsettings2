@@ -1,5 +1,5 @@
-providers.TomlConfigurationProvider
-===================================
+TomlConfigurationProvider
+=========================
 
 The `TomlConfigurationProvider` class allows you to load configuration data from a TOML file, TOML string, or TOML stream. Consider the following TOML:
 
@@ -11,7 +11,7 @@ The `TomlConfigurationProvider` class allows you to load configuration data from
    [ConnectionStrings]
    SampleDb = "my_cxn_string"
 
-When loaded using `TomlConfigurationProvider` the resulting `Configuration` object will have attribute names and a structure which matches the TOML, consider the following Python code (where "example.toml" contains the above TOML):
+When loaded using :py:class:`~appsettings2.providers.TomlConfigurationProvider` the resulting :py:class:`~appsettings2.Configuration` object will have attribute names and a structure which matches the TOML, consider the following (where "example.toml" contains the above TOML):
 
 .. code:: python
 
@@ -22,6 +22,7 @@ When loaded using `TomlConfigurationProvider` the resulting `Configuration` obje
         .addProvider(TomlConfigurationProvider('example.toml'))\
         .build()
 
+    print(config['LOGGING_DEFAULT']) # outputs: "Debug"
     print(config.ConnectionStrings.SampleDb) # outputs: "my_cxn_string"
 
 ____

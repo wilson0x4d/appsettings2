@@ -1,5 +1,5 @@
-providers.JsonConfigurationProvider
-===================================
+JsonConfigurationProvider
+=========================
 
 The `JsonConfigurationProvider` class allows you to load configuration data from a JSON file, JSON string, or JSON stream. Consider the following JSON:
 
@@ -14,7 +14,7 @@ The `JsonConfigurationProvider` class allows you to load configuration data from
         },
     }
 
-When loaded using `JsonConfigurationProvider` the resulting `Configuration` object will have attribute names and a structure which matches the JSON, consider the following Python code (where "example.json" contains the above JSON):
+When loaded using :py:class:`~appsettings2.providers.JsonConfigurationProvider` the resulting :py:class:`~appsettings2.Configuration` object will have attribute names and a structure which matches the JSON, consider the following (where "example.json" contains the above JSON):
 
 .. code:: python
 
@@ -25,6 +25,7 @@ When loaded using `JsonConfigurationProvider` the resulting `Configuration` obje
         .addProvider(JsonConfigurationProvider('example.json'))\
         .build()
 
+    print(config['LOGGING_DEFAULT']) # outputs: "Debug"
     print(config.ConnectionStrings.SampleDb) # outputs: "my_cxn_string"
 
 ____

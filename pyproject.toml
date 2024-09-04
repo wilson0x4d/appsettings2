@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "appsettings2"
 version = "0.0.0"
-description = "A python library that unifies configuration sources into a Configuration object that can be bound to complex types, or accessed directly for configuration data."
+description = "Unifies configuration sources into a Configuration object that can be bound to complex types, or accessed directly for configuration data."
 authors = ["Shaun Wilson <mrshaunwilson@msn.com>"]
 license = "MIT"
 readme = "README.md"

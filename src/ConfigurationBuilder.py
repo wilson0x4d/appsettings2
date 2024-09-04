@@ -19,7 +19,7 @@ class ConfigurationBuilder:
     def __init__(self, *, normalize:bool = False, scrubkeys:bool = False):
         """
         :param normalize: Option indicating whether or not attribute names should be normalized to upper-case on the resulting :py:class:`~appsettings2.Configuration` object, defaults to False.
-        :param scrubkeys: Option indicating whether or not attribute names (and key names) should be scrubbed to be compatible with the Python lexer, defaults to False.
+        :param scrubkeys: Option indicating whether or not attribute names should be scrubbed to be compatible with the Python lexer, defaults to False.
         """
         self.__normalize = normalize
         self.__scrubkeys = scrubkeys
