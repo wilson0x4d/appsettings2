@@ -11,6 +11,7 @@ on:
     - 'src/**'
     - 'pyproject.toml'
     - 'README.md'
+    - '!docs/**'
 jobs:
   publish:
     name: "Publish Package"
