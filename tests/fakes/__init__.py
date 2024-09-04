@@ -2,5 +2,6 @@
 # SPDX-License-Identifier: MIT
 
 from .FakeComplexTypes import *
-from .FakeConfigObj import FakeConfigObj
+from .FakeConfigObj import *
+from .FakeInheritanceTypes import *
 from .FakePropertyObjects import *

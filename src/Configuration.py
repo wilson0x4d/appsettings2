@@ -65,7 +65,10 @@ class Configuration:
     def __recursiveBind(self, target:object, source:Configuration|dict) -> any:
         if target == None:
             return None
-        targetTypeHints = typing.get_type_hints(target)
+        if hasattr(target, '__class__'):
+            targetTypeHints = typing.get_type_hints(getattr(target, '__class__'))
+        else:
+            targetTypeHints = typing.get_type_hints(target)
         for aname in dir(target):
             if aname.startswith('_'):
                 continue

@@ -421,3 +421,16 @@ class ConfigurationTests(unittest.TestCase):
             self.assertEqual(str(i), e.key)
             for k in range(3):
                 self.assertEqual(i+k, e.value[k])
+
+    def test_BindInheritedAttributes(self):
+        config = appsettings2.Configuration()
+        config.set('first', 1)
+        config.set('second', 2)
+        config.set('third', 3)
+        obj = config.bind(FakeSubSubClass())
+        self.assertIsNotNone(obj.third)
+        self.assertEqual('3', obj.third)
+        self.assertIsNotNone(obj.second)
+        self.assertEqual('2', obj.second)
+        self.assertIsNotNone(obj.first)
+        self.assertEqual('1', obj.first)
