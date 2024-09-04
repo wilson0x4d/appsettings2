@@ -7,11 +7,11 @@ on:
     branches:
     - master
     paths:
-    - '.gitea/workflows/pipeline.yaml'
     - 'src/**'
     - 'pyproject.toml'
     - 'README.md'
     - '!docs/**'
+    - '!.gitea/workflows/pipeline.yaml'
 jobs:
   publish:
     name: "Publish Package"
