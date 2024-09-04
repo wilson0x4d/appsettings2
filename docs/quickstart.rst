@@ -60,7 +60,7 @@ On the developer workstation, the resulting :py:class:`~appsettings2.Configurati
 
 .. code:: python
 
-    print(config.get('LOGGING_LEVEL', 'WARN')) # outputs: "DEBUG"
+    print(config.get('LOGGING__LEVEL', 'WARN')) # outputs: "DEBUG"
     print(config['ConnectionStrings']['SampleDb']) # outputs: "Server=localhost"
     print(config.AppSettings.EnableSwagger) # outputs: True
 
