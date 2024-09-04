@@ -77,16 +77,16 @@ class Configuration:
                 continue
             ahint = targetTypeHints.get(aname)
             rval = source.get(aname)
-            if rval == None:
-                setattr(target, aname, None)
-            elif ahint == None:
+            if ahint == None:
                 # attr has no type hints, attempt to treat as a property
                 prop = getattr(type(target), aname)
                 if hasattr(prop, 'fget') and getattr(prop, 'fget') != None:
                     lval = getattr(target, aname)
-                if lval == None and ((not hasattr(prop, 'fset')) or (getattr(prop, 'fget') == None)):
-                    # NOTE: lval is not settable, not initialized, can't bind
-                    continue
+                if (not hasattr(prop, 'fset')) or (getattr(prop, 'fset') == None):
+                    # NOTE: lval is not settable
+                    if lval == None or not issubclass(type(lval), list):
+                        # lval not initialized or not a supported target
+                        continue
                 phints = typing.get_type_hints(getattr(prop, 'fget'))
                 if phints == None or (not issubclass(type(phints), dict)):
                     # NOTE: can't get hints from getter, can't bind
@@ -97,7 +97,9 @@ class Configuration:
                     continue
             else:
                 lval = getattr(target, aname)
-            if ahint is float:
+            if rval == None:
+                setattr(target, aname, None)
+            elif ahint is float:
                 v = float(rval)
                 setattr(target, aname, v)
             elif ahint is int:

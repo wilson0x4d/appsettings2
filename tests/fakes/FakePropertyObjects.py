@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: MIT
 
 class FakeKeyValuePropPair:
+
     __key:str = None
     __value:list = None
 
@@ -22,6 +23,7 @@ class FakeKeyValuePropPair:
         self.__value = value
 
 class FakeUninitializedSettablePropObject:
+
     __keyValuePairs:list[FakeKeyValuePropPair]
 
     @property
@@ -33,8 +35,13 @@ class FakeUninitializedSettablePropObject:
         setattr(self, '__keyValuePairs', value)
 
 class FakeInitializedNonSettablePropObject:
+
     __keyValuePairs:list[FakeKeyValuePropPair] = []
 
     @property
     def keyValuePairs(self) -> list[FakeKeyValuePropPair]:
         return self.__keyValuePairs
+
+    @property
+    def validity(self) -> bool:
+        return False
