@@ -34,7 +34,7 @@ class ConfigurationBuilder:
         :param provider: A class implementing the `ConfigurationProvider` abstract class.
         :return: Returns :py:class:`~appsettings2.ConfigurationBuilder` for method chaining.
         """
-        if provider == None or not issubclass(type(provider), ConfigurationProvider):
+        if provider is None or not issubclass(type(provider), ConfigurationProvider):
             raise ConfigurationException('Missing/Invalid argument: provider')
         self.__providers.append(provider)
         return self

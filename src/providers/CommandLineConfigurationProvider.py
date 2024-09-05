@@ -16,10 +16,10 @@ class CommandLineConfigurationProvider(ConfigurationProvider):
         """
         :param argv: Optional arg list used in lieu of `sys.argv`, defaults to None.
         """
-        self.__argv = argv if argv != None else sys.argv
+        self.__argv = argv if argv is not None else sys.argv
 
     def populateConfiguration(self, configuration:Configuration):
-        if self.__argv == None:
+        if self.__argv is None:
             return
         pending_key = None
         for arg in self.__argv:
@@ -40,5 +40,5 @@ class CommandLineConfigurationProvider(ConfigurationProvider):
                 configuration.set(k, v)
             elif arg.startswith('--'):
                 pending_key = safe_arg
-        if pending_key != None:
+        if pending_key is not None:
             configuration.set(pending_key, True)

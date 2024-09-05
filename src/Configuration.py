@@ -32,7 +32,7 @@ class Configuration:
     def __delitem__(self, key:str) -> None:
         key = key.upper()
         k = self.__keys.get(key)
-        if k != None:
+        if k is not None:
             delattr(self, k)
             self.__keys.pop(key)
 
@@ -48,7 +48,7 @@ class Configuration:
         for part in parts:
             if o == self:
                 k = self.__keys.get(part.upper())
-                if k == None:
+                if k is None:
                     raise KeyError()
                 else:
                     o = getattr(o, self.__scrub_key(k))
@@ -63,7 +63,7 @@ class Configuration:
         return len(self.__keys)
 
     def __recursiveBind(self, target:object, source:Configuration|dict) -> any:
-        if target == None:
+        if target is None:
             return None
         if hasattr(target, '__class__'):
             targetTypeHints = typing.get_type_hints(getattr(target, '__class__'))
@@ -78,25 +78,25 @@ class Configuration:
                 continue
             ahint = targetTypeHints.get(aname)
             rval = source.get(aname)
-            if ahint == None:
+            if ahint is None:
                 # attr has no type hints, attempt to treat as a property
                 prop = getattr(type(target), aname)
-                if hasattr(prop, 'fget') and getattr(prop, 'fget') != None:
+                if hasattr(prop, 'fget') and getattr(prop, 'fget') is not None:
                     lval = getattr(target, aname)
-                if (not hasattr(prop, 'fset')) or (getattr(prop, 'fset') == None):
+                if (not hasattr(prop, 'fset')) or (getattr(prop, 'fset') is None):
                     # NOTE: lval is not settable
-                    if lval == None or not issubclass(type(lval), list):
+                    if lval is None or not issubclass(type(lval), list):
                         # lval not initialized or not a supported target
                         continue
                 phints = typing.get_type_hints(getattr(prop, 'fget'))
-                if phints == None or (not issubclass(type(phints), dict)):
+                if phints is None or (not issubclass(type(phints), dict)):
                     # NOTE: can't get hints from getter, can't bind
                     continue
                 ahint = phints.get('return')
-                if ahint == None:
+                if ahint is None:
                     # NOTE: fget hint missing return spec, can't bind
                     continue
-            if rval == None:
+            if rval is None:
                 setattr(target, aname, None)
             elif ahint is float:
                 v = float(rval)
@@ -112,13 +112,13 @@ class Configuration:
                     lval = rval.toDictionary()
                     setattr(target, aname, lval)
                 else:
-                    if lval == None:
+                    if lval is None:
                         lval = ahint()
                         setattr(target, aname, lval)
                     self.__recursiveBind(lval, rval)
             elif typing.get_origin(ahint) is list:
                 elementType = ahint.__args__[0]
-                if lval == None:
+                if lval is None:
                     lval = ahint()
                     setattr(target, aname, lval)
                 for e in rval:
@@ -177,7 +177,7 @@ class Configuration:
         """
         if not target:
             raise ConfigurationException('Missing required argument: target')
-        if key == None:
+        if key is None:
             return self.__recursiveBind(target, self)
         else:
             source = self.get(key)
@@ -223,7 +223,7 @@ class Configuration:
         for part in parts:
             if o == self:
                 k = self.__keys.get(part.upper())
-                if k == None:
+                if k is None:
                     return default
                 else:
                     o = getattr(o, self.__scrub_key(k))
@@ -232,7 +232,7 @@ class Configuration:
         return o
 
     def has_key(self, key:str) -> bool:
-        return self.__keys.get(key.upper()) != None
+        return self.__keys.get(key.upper()) is not None
 
     def items(self) -> list[tuple[str,any]]:
         it = []
@@ -263,7 +263,7 @@ class Configuration:
         for i in range(len(parts) - 1):
             if o == self:
                 k = self.__keys.get(parts[i].upper())
-                if k == None:
+                if k is None:
                     c = Configuration(normalize=self.__normalize, scrubkeys=(None != self.__key_scrub_re))
                     setattr(o, self.__scrub_key(parts[i]), c)
                     self.__keys[parts[i].upper()] = parts[i]
@@ -279,19 +279,19 @@ class Configuration:
                     o = o.get(parts[i])
         vtype = type(value)
         if issubclass(vtype, dict):
-            value = Configuration.fromDictionary(value, normalize=self.__normalize, scrubkeys=self.__key_scrub_re != None)
+            value = Configuration.fromDictionary(value, normalize=self.__normalize, scrubkeys=self.__key_scrub_re is not None)
         elif issubclass(vtype, list):
             l = []
             for e in value:
                 if issubclass(type(e), dict):
-                    l.append(Configuration.fromDictionary(e, normalize=self.__normalize, scrubkeys=self.__key_scrub_re != None))
+                    l.append(Configuration.fromDictionary(e, normalize=self.__normalize, scrubkeys=self.__key_scrub_re is not None))
                 else:
                     l.append(e)
             value = l
         key = parts[-1]
         if o == self:
             k = self.__keys.get(key.upper())
-            if k != None:
+            if k is not None:
                 setattr(self, self.__scrub_key(k), value)
             else:
                 self.__keys[key.upper()] = key

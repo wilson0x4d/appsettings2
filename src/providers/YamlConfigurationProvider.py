@@ -52,7 +52,7 @@ class YamlConfigurationProvider(ConfigurationProvider):
                 configuration.set(f'{prefix}__{kvp[0]}', kvp[1])
 
     def populateConfiguration(self, configuration:Configuration):
-        if self.__obj == None:
+        if self.__obj is None:
             return
         for kvp in self.__obj.items():
             if isinstance(kvp[1], dict):
