@@ -5,7 +5,7 @@ It's possible to populate complex objects using the :py:meth:`~appsettings2.Conf
 
 This makes it possible to load configuration data from multiple providers into application-specific objects, without requiring the application-specific objects to have any knowledge about :py:mod:`~appsettings2`.
 
-To illustrate, this code unifies JSON and YAML into a single configuration object, and then binds the configuration to an applicaiton-specific object model:
+To illustrate, this code unifies JSON and YAML into a single configuration object, and then binds the configuration to an application-specific object model:
 
 .. code:: python
 
@@ -42,4 +42,4 @@ To illustrate, this code unifies JSON and YAML into a single configuration objec
     print(settings.ConnectionStrings.SampleDB) # outputs: "my_cxn_string"
     print(settings.MaxBatchSize) # outputs: 100
 
-.. note:: It's worth noting that :py:meth:`~appsettings2.Configuration.bind` is case-insensitive by design. This ensures that automation/configuration systems which can only communicate in upper-case can be used to populate complex objects which follow a strict naming convention without burdening devs/devops with extra work.
+.. note:: It's worth noting that :py:meth:`~appsettings2.Configuration.bind` is case-insensitive by design. This ensures that automation/configuration systems which can only communicate in upper-case can be used to populate complex objects which follow a strict naming convention without burdening devs/devops with extra work. The casing of attributes on the bind target is always preserved.

@@ -8,7 +8,7 @@ Upper-Case Attribute Names
 
 If you specify ``normalize=True``, all :py:class:`~appsettings2.Configuration` instances created by that builder will normalize :py:class:`~appsettings2.Configuration` attributes to upper-case.
 
-In both cases the :py:class:`~appsettings2.Configuration` object allows access to data in a case-insensitive fashion via :py:meth:`~appsettings2.Configuration.get`, :py:meth:`~appsettings2.Configuration.set`, and indexer methods. Normalization _ONLY_ affects **Dynamic Attributes**.
+In both cases the :py:class:`~appsettings2.Configuration` object allows access to data in a case-insensitive fashion via :py:meth:`~appsettings2.Configuration.get`, :py:meth:`~appsettings2.Configuration.set`, and indexer methods. Normalization `ONLY` affects **Dynamic Attributes**.
 
 To illustrate, consider the following snippet:
 
@@ -31,7 +31,7 @@ To illustrate, consider the following snippet:
     value = configuration['cOnNeCtioNsTriNGs']['sampledb']
 
 
-.. note:: Normalization has no effect on `bind(...)`, which operates in a case-insensitive fashion internally. The casing of attributes on the bind target are preserved.
+.. note:: Normalization has no effect on :py:meth:`~appsettings2.Configuration.bind`, which operates in a case-insensitive fashion internally. The casing of attributes on the bind target is always preserved.
 
 Lexer-friendly Attribute Names
 ------------------------------
@@ -40,7 +40,7 @@ Lexer-friendly Attribute Names
 
 If you pass ``scrubkeys=True``, all :py:class:`~appsettings2.Configuration` instances created by that builder will generate lexically accessible :py:class:`~appsettings2.Configuration` attributes.
 
-This is not enabled by default because it introduces an edge case where configuration keys may collide, albeit very unlikely, this is explained below.
+This is not enabled by default because it introduces an edge case where configuration keys may collide, albeit very unlikely (and this is explained in more detail, below.)
 
 Some configuration sources might produce attribute names which are not accessible from Python code. Consider the following JSON snippet:
 
@@ -54,14 +54,14 @@ Some configuration sources might produce attribute names which are not accessibl
         }
     }
 
-This configuration will load, and you can still access the data using keyed methods such as :py:meth:`~appsettings2.Configuration.get` and :py:meth:`~appsettings2.Configuration.set`, but the resulting :py:class:`~appsettings2.Configuration` object will have attributes that cannot be accessed from Python code:
+This configuration will load, and you can still access the data using keyed methods such as :py:meth:`~appsettings2.Configuration.get` and :py:meth:`~appsettings2.Configuration.set`, but the resulting :py:class:`~appsettings2.Configuration` object will have attributes that cannot be accessed from Python code, for example this would produce compile-time/run-time errors:
 
 .. code:: python
 
     if True == configuration.query-tab.fragment#left.input:
         pass
 
-To accomodate configurations such as these and make them accessible via :py:class:`~appsettings2.Configuration` attributes you may pass ``scrubkeys=True``. This will cause any lexically invalid characters to be transformed into an underscore `_` character.
+To accomodate configurations such as these and make them accessible via :py:class:`~appsettings2.Configuration` attributes you may pass ``scrubkeys=True``. This will cause any lexically invalid characters to be transformed into an underscore `_` character. This feature complies with `PEP 3131 <https://peps.python.org/pep-3131/>`_ to ensure invalid Unicode characters are also transformed.
 
 Although attribute names are transformed, keys are not. Therefore, given the above JSON snippet the following are equivalent:
 
