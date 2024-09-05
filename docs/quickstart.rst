@@ -41,6 +41,7 @@ This file comes from source-control to implement application defaults.
 .. code:: json
 
     {
+        "Secret": "not-set",
         "Logging": {
             "Level": "WARN"
         },
@@ -75,8 +76,21 @@ On the developer workstation, the resulting :py:class:`~appsettings2.Configurati
     print(config.get('LOGGING__LEVEL', 'WARN')) # outputs: "DEBUG"
     print(config['ConnectionStrings']['SampleDb']) # outputs: "Server=localhost"
     print(config.AppSettings.EnableSwagger) # outputs: True
+    print(config.AppSettings.MaxBatchSize) # outputs: 100
 
 
-Additionally, because :py:class:`~appsettings2.providers.EnvironmentConfigurationProvider` is added to the builder last (via :py:meth:`~appsettings2.ConfigurationBuilder.addEnvironment`) it is possible to use Environment variables to overwrite any configuration values which were populated by either of the JSON providers.
+Additionally, because :py:class:`~appsettings2.providers.EnvironmentConfigurationProvider` is added to the builder last (via :py:meth:`~appsettings2.ConfigurationBuilder.addEnvironment`) it is possible to use Environment variables to overwrite any configuration values which were populated by either of the JSON providers. Consider the following ``bash`` export and associated python code, assume these are set on the developer workstation in addition to the above two configuration files:
 
-This makes it easy for developers to implement a default configuration that devops can then override as part of Environment config. This is a popular approach for configuring environment-specific settings without leaking those details into source control, particularly useful for keeping secrets like API keys and production database details out of source control.
+.. code:: bash
+
+    # in `bash`, set env vars
+    export CONNECTIONSTRINGS__SAMPLEDB="Server=prod"
+    export APPSETTINGS__ENABLESWAGGER=0
+
+.. code:: python
+
+    # in python, check the config
+    print(config.ConnectionStrings.SampleDb) # outputs: "Server=prod"
+    print(config.AppSettings.EnableSwagger) # outputs: False
+
+This makes it easy for developers to implement a default configuration that devops can then override as part of the Environment config of a deployment. This is a popular approach for configuring containers without leaking details into source control, particularly useful for keeping secrets like API keys and database details out of source control.
