@@ -7,6 +7,9 @@ There are three methods of accessing configuration values directly via :py:class
 * Configuration keys accessed by calling :py:meth:`~appsettings2.Configuration.get` and :py:meth:`~appsettings2.Configuration.set` methods.
 * Configuration keys accessed using dictionary-like indexer syntax.
 
+All of the above **Direct Access** methods are equivalent and refer to the same underlying data (no copies are made.)
+
+
 Dynamic Attributes
 ------------------
 
@@ -48,6 +51,4 @@ Dictionary-like Interface
     print(config['ConnectionStrings__SampleDb']) # outputs: "my_cxn_string"
     print(config['ConnectionStrings']['SampleDb']) # outputs: "my_cxn_string"
 
-
-All of the above **Direct Access** methods are equivalent and refer to the same underlying data (a single configuration value.)
-
+In addition to the above indexer syntax, :py:class:`~appsettings2.Configuration` also supports additional dictionary-like methods such as ``items()``, ``keys()``, and ``values()`` (and others) -- in most cases :py:class:`~appsettings2.Configuration` can be used as a stand-in where a ``dict`` would normally be used. However, type-checking will show that it is not a ``dict`` subclass. If you have some code that strictly requires a ``dict`` you can use the :py:meth:`~appsettings2.Configuration.toDictionary` method to acquire an actual dictionary.
