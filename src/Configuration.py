@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: © 2024 Shaun Wilson
 # SPDX-License-Identifier: MIT
 
+import logging
 from .ConfigurationException import ConfigurationException
 import json
 import re
@@ -26,6 +27,7 @@ class Configuration:
         :param scrubkeys: Option indicating whether or not attribute names should be scrubbed to be compatible with the Python lexer, defaults to False.
         """
         self.__keys = {}
+        self.__logger = logging.getLogger('appsettings2')
         self.__normalize = normalize
         self.__key_scrub_re = None if not scrubkeys else re.compile(r'[^A-Za-z0-9_]', re.IGNORECASE | re.UNICODE)
 
@@ -82,7 +84,11 @@ class Configuration:
                 # attr has no type hints, attempt to treat as a property
                 prop = getattr(type(target), aname)
                 if hasattr(prop, 'fget') and getattr(prop, 'fget') is not None:
-                    lval = getattr(target, aname)
+                    try:
+                        lval = getattr(target, aname)
+                    except AttributeError:
+                        lval = None
+                        self.__logger.debug(f'Failed to bind {aname}', exc_info=True)
                 if (not hasattr(prop, 'fset')) or (getattr(prop, 'fset') is None):
                     # NOTE: lval is not settable
                     if lval is None or not issubclass(type(lval), list):

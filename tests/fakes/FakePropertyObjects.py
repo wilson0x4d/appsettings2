@@ -28,11 +28,11 @@ class FakeUninitializedSettablePropObject:
 
     @property
     def keyValuePairs(self) -> list[FakeKeyValuePropPair]:
-        return None if not hasattr(self, '__keyValuePairs') else getattr(self, '__keyValuePairs')
+        return self.__keyValuePairs
 
     @keyValuePairs.setter
-    def keyValuePairs(self, value:list[int]) -> list[FakeKeyValuePropPair]:
-        setattr(self, '__keyValuePairs', value)
+    def keyValuePairs(self, value:list[FakeKeyValuePropPair]) -> list[FakeKeyValuePropPair]:
+        self.__keyValuePairs = value
 
 class FakeInitializedNonSettablePropObject:
 
