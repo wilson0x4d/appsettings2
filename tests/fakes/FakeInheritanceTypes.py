@@ -2,10 +2,10 @@
 # SPDX-License-Identifier: MIT
 
 class FakeSuperClass:
-    first:str = None
+    first:str
 
 class FakeSubClass(FakeSuperClass):
-    second:str = None
+    second:str
 
 class FakeSubSubClass(FakeSubClass):
-    third:str = None
+    third:str

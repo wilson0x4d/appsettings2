@@ -24,12 +24,12 @@ To illustrate, this code unifies JSON and YAML into a single configuration objec
 
     class ConnStrs:
         """An ugly class name to demonstrate the class name does not matter."""
-        SampleDB:str = None
+        SampleDB:str
 
     class AppSettings:
-        ConnectionStrings:ConnStrs = None
-        EnableSwagger:bool = None
-        MaxBatchSize:int = None
+        ConnectionStrings:ConnStrs
+        EnableSwagger:bool
+        MaxBatchSize:int
 
     configuration = ConfigurationBuilder()\
         .addProvider(JsonConfigurationProvider(json=json))

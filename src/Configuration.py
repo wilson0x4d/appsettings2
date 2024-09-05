@@ -69,10 +69,11 @@ class Configuration:
             targetTypeHints = typing.get_type_hints(getattr(target, '__class__'))
         else:
             targetTypeHints = typing.get_type_hints(target)
-        for aname in dir(target):
+        names = set(dir(target) | targetTypeHints.keys())
+        for aname in names:
             if aname.startswith('_'):
                 continue
-            lval = getattr(target, aname)
+            lval = None if not hasattr(target, aname) else getattr(target, aname)
             if isinstance(lval, types.FunctionType) or isinstance(lval, types.MethodType):
                 continue
             ahint = targetTypeHints.get(aname)
@@ -95,8 +96,6 @@ class Configuration:
                 if ahint == None:
                     # NOTE: fget hint missing return spec, can't bind
                     continue
-            else:
-                lval = getattr(target, aname)
             if rval == None:
                 setattr(target, aname, None)
             elif ahint is float:

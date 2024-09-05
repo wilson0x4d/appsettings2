@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: MIT
 
 class FakeKeyValuePair:
-    key:str = None
-    value:str = None
+    key:str
+    value:str
 
 class FakeComplexObject:
-    keyValuePairs:list[FakeKeyValuePair] = None
+    keyValuePairs:list[FakeKeyValuePair]

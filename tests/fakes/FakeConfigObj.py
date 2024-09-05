@@ -7,13 +7,13 @@ FakeConfigObj = typing.ForwardRef('FakeConfigObj')
 
 class FakeConfigObj:
 
-    test_argv:int = None
-    env_test:int = None
-    some_float:float = None
-    some_int:int = None
-    some_list:list = None
-    some_string:str = None
-    some_subobj:FakeConfigObj = None
+    test_argv:int
+    env_test:int
+    some_float:float
+    some_int:int
+    some_list:list
+    some_string:str
+    some_subobj:FakeConfigObj
 
     def fn1(self):
         return -1
