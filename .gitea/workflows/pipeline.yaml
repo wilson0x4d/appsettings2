@@ -1,4 +1,4 @@
-0name: "Test Pipeline"
+name: "Build & Publish"
 run-name: ${{ gitea.actor }} (rn)
 on:
   workflow_dispatch:
@@ -8,8 +8,8 @@ on:
     - master
     paths:
     - 'src/**'
-    - 'pyproject.toml'
-    - 'README.md'
+    - '!pyproject.toml'
+    - '!README.md'
     - '!docs/**'
     - '!.gitea/workflows/pipeline.yaml'
 jobs:
