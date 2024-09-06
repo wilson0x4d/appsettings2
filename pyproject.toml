@@ -11,6 +11,7 @@ classifiers = [
     "Programming Language :: Python :: 3.13"
 ]
 exclude = [
+    "docs",
     "sys",
     "tests"
 ]
