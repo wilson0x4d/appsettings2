@@ -25,12 +25,11 @@ class CommandLineConfigurationProvider(ConfigurationProvider):
         for arg in self.__argv:
             safe_arg = arg.lstrip('-')
             eqidx = safe_arg.find('=')
-            if pending_key:
+            if pending_key is not None:
                 if (not arg.startswith('-')) and (eqidx < 1):
-                    k = pending_key
-                    v = arg.lstrip('=')
-                    configuration.set(k, v)
-                    continue
+                    v = safe_arg.lstrip('=')
+                    configuration.set(pending_key, v)
+                    pending_key = None
                 else:
                     configuration.set(pending_key, True)
                     pending_key = None
@@ -38,7 +37,7 @@ class CommandLineConfigurationProvider(ConfigurationProvider):
                 k = safe_arg[0:eqidx]
                 v = safe_arg[eqidx+1:len(safe_arg)]
                 configuration.set(k, v)
-            elif arg.startswith('--'):
-                pending_key = safe_arg
+            else:
+                pending_key = safe_arg.lstrip('=')
         if pending_key is not None:
             configuration.set(pending_key, True)
