@@ -7,7 +7,12 @@
 # and then installs deps using poetry.
 ##
 set -eo pipefail
-python3 -m venv --prompt "appsettings2" .venv
+if [[ "$PYTHON_VERSION" != "" ]]; then
+    PYPATH=`which python$PYTHON_VERSION`
+else
+    PYPATH="python3"
+fi
+$PYPATH -m venv --prompt "appsettings2" .venv
 source .venv/bin/activate
 pip install poetry
 if [ -e pyproject.toml ]; then
