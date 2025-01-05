@@ -3,9 +3,16 @@
 # SPDX-License-Identifier: MIT
 ##
 set -eo pipefail
-python3 -m venv --prompt "appsettings2" .venv
-source .venv/bin/activate
+python3 -m venv --prompt "appsettings2" .venv-bash
+source .venv-bash/bin/activate
 sed "s/0.0.0/$SEMVER/g" --in-place pyproject.toml
 sed "s/0.0.0/$SEMVER/g" --in-place src/__init__.py
-poetry build
-poetry publish --repository=$PYPI_REPO
+if [ -d ./appsettings2 ]; then
+  rm ./appsettings2
+fi
+rm -rf build/
+rm -rf dist/
+rm -rf *.egg-info/
+ln -s ./src ./appsettings2
+python3 -m build
+python3 -m twine upload --repository $PYPI_REPO dist/*

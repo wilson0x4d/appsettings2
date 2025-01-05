@@ -12,10 +12,7 @@ if [[ "$PYTHON_VERSION" != "" ]]; then
 else
     PYPATH="python3"
 fi
-$PYPATH -m venv --prompt "appsettings2" .venv
-source .venv/bin/activate
-pip install poetry
-if [ -e pyproject.toml ]; then
-    poetry install --no-root
-fi
+$PYPATH -m venv --prompt "appsettings2" .venv-bash
+source .venv-bash/bin/activate
+pip install -r requirements-dev.txt
 deactivate

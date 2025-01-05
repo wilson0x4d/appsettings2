@@ -15,7 +15,4 @@
 source ~/.bashrc
 export PS1='\$ '
 echo -n -e "\033]0;appsettings2\007"
-source .venv/bin/activate
-if [ -e pyproject.toml ]; then
-    poetry shell
-fi
+source .venv-bash/bin/activate

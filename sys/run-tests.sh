@@ -3,5 +3,5 @@
 # SPDX-License-Identifier: MIT
 ##
 set -eo pipefail
-source .venv/bin/activate
+source .venv-bash/bin/activate
 python -m unittest discover -s tests -p '*Tests.py' -k '*Test*' -k '*test*'

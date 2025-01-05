@@ -1,33 +1,37 @@
-[tool.poetry]
+[project]
 name = "appsettings2"
 version = "0.0.0"
 description = "Unifies configuration sources into a Configuration object that can be bound to complex types, or accessed directly for configuration data."
-authors = ["Shaun Wilson <mrshaunwilson@msn.com>"]
-license = "MIT"
+authors = [
+    { name="Shaun Wilson", email="mrshaunwilson@msn.com" }
+]
 readme = "README.md"
 classifiers = [
-    "Topic :: Software Development :: Libraries :: Python Modules",
+    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3.13"
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Intended Audience :: Developers"
 ]
-exclude = [
-    "docs",
-    "sys",
-    "tests"
-]
-packages = [
-    { include = "**/*.py", from = "src", to = "appsettings2", format = ["sdist", "wheel"] }
+requires-python = ">=3.11"
+dependencies = [
+  "pyyaml>=6.0.2",
 ]
 
-[tool.poetry.urls]
-documentation = "https://appsettings2.readthedocs.io/"
-homepage = "https://github.com/wilson0x4d/appsettings2"
-repository = "https://github.com/wilson0x4d/appsettings2.git"
-
-[tool.poetry.dependencies]
-python = "^3.11"
-pyyaml = "^6.0.2"
+[project.urls]
+Documentation = "https://appsettings2.readthedocs.io/"
+Homepage = "https://github.com/wilson0x4d/appsettings2"
+Repository = "https://github.com/wilson0x4d/appsettings2.git"
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+exclude = [
+    "docs",
+    "src",
+    "src.*",
+    "tests",
+    "tests.*"
+]
