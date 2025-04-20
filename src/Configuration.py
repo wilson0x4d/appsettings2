@@ -181,17 +181,19 @@ class Configuration:
         :param key: An optional confguration key to bind to, defaults to None which binds to the configuration root.
         :return: The original `target` object, modified in-place.
         """
-        if not target:
+        if target is None:
             raise ConfigurationException('Missing required argument: target')
         if key is None:
             return self.__recursiveBind(target, self)
         else:
             source = self.get(key)
-            sourceType = type(source)
-            if sourceType is Configuration or sourceType is dict:
-                return self.__recursiveBind(target, source)
-            else:
-                raise ConfigurationException(f'Bind of source type `{type(source)}` is not supported.')
+            if source is not None:
+                sourceType = type(source)
+                if sourceType is Configuration or sourceType is dict:
+                    return self.__recursiveBind(target, source)
+                else:
+                    raise ConfigurationException(f'Bind of source type `{type(source)}` is not supported.')
+            return target
 
     def clear(self) -> None:
         while len(self.__keys) > 0:

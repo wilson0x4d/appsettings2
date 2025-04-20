@@ -434,3 +434,9 @@ class ConfigurationTests(unittest.TestCase):
         self.assertEqual('2', obj.second)
         self.assertIsNotNone(obj.first)
         self.assertEqual('1', obj.first)
+
+    def test_Bind_WhenKeyIsNone_MustSucceed(self):
+        config = appsettings2.Configuration()
+        expected = FakeComplexObject()
+        actual = config.bind(expected, 'does_not_exist')
+        assert id(expected) == id(actual)
