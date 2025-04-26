@@ -2,8 +2,7 @@ Helpers
 =========
 
 .. toctree::
-    :hidden:
     :titlesonly:
-    :maxdepth: 2
+    :maxdepth: 1
 
     getConfiguration <getConfiguration>
