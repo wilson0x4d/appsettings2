@@ -28,6 +28,7 @@ class YamlConfigurationProvider(ConfigurationProvider):
         :param fd: Optional file descriptor (int) to be used as a configuration source, defaults to None.
         :param required: Optional parameter indicating whether the configuration source will raise `ConfigurationException` if the specified configuration source is missing, defaults to True.
         """
+        self.__obj = None
         if filepath:
             if os.path.isfile(filepath):
                 with open(filepath, 'rt') as file:
@@ -41,8 +42,6 @@ class YamlConfigurationProvider(ConfigurationProvider):
             stream = StringIO(yaml)
             self.__obj = _yaml.safe_load(stream)
             stream.close()
-        else:
-            self.__obj = None
 
     def __populateRecursive(self, configuration:Configuration, prefix:str, o:dict):
         for kvp in o.items():
