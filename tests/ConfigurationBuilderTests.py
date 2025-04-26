@@ -1,24 +1,27 @@
 # SPDX-FileCopyrightText: © 2024 Shaun Wilson
 # SPDX-License-Identifier: MIT
 
-import os
 import appsettings2
-import unittest
+import os
+from punit import *
 
-class ConfigurationBuilderTests(unittest.TestCase):
+class ConfigurationBuilderTests:
 
+    @fact
     def test_WithoutProviders_MustSucceed(self):
         builder = appsettings2.ConfigurationBuilder()
         configuration = builder.build()
-        self.assertIsNotNone(configuration)
+        assert configuration is not None
 
+    @fact
     def test_RequestForNonExistentKey_MustSucceed(self):
         builder = appsettings2.ConfigurationBuilder()
         configuration = builder.build()
-        self.assertIsNotNone(configuration)
+        assert configuration is not None
         v = configuration.get('non_existent_key')
-        self.assertIsNone(v)
+        assert v is None
 
+    @fact
     def test_WithUninitalizedProviders_MustSucceed(self):
         builder = appsettings2.ConfigurationBuilder()
         builder.addProvider(appsettings2.providers.CommandLineConfigurationProvider([]))
@@ -27,8 +30,9 @@ class ConfigurationBuilderTests(unittest.TestCase):
         builder.addProvider(appsettings2.providers.TomlConfigurationProvider())
         builder.addProvider(appsettings2.providers.YamlConfigurationProvider())
         configuration = builder.build()
-        self.assertIsNotNone(configuration)
+        assert configuration is not None
 
+    @fact
     def test_WithSubsetConfigurations_MustLoad(self):
         builder = appsettings2.ConfigurationBuilder()
         builder.addProvider(appsettings2.providers.CommandLineConfigurationProvider([
@@ -42,8 +46,9 @@ class ConfigurationBuilderTests(unittest.TestCase):
         builder.addProvider(appsettings2.providers.TomlConfigurationProvider('tests/configs/subset.toml'))
         builder.addProvider(appsettings2.providers.YamlConfigurationProvider('tests/configs/subset.yaml'))
         configuration = builder.build()
-        self.assertIsNotNone(configuration)
+        assert configuration is not None
 
+    @fact
     def test_WithSubsetConfigurations_MustMatch(self):
         # "subset configurations" are a set of
         # configurations which each configure a subset
@@ -63,18 +68,19 @@ class ConfigurationBuilderTests(unittest.TestCase):
         builder.addToml('tests/configs/subset.toml')
         builder.addYaml('tests/configs/subset.yaml')
         configuration = builder.build()
-        self.assertIsNotNone(configuration)
-        self.assertEqual(1, configuration.get('some_float'))
-        self.assertEqual('rand2', configuration.get('some_subobj:some_string'))
-        self.assertEqual(3, configuration.get('some_int'))
-        self.assertEqual(3.4, configuration.get('some_subobj:some_float'))
-        self.assertEqual('rand4', configuration.get('some_string'))
-        self.assertEqual(4, configuration.get('some_subobj:some_int'))
-        self.assertEqual('5', configuration.get('TEST_ARGV'))
-        self.assertEqual('6', configuration.get('some_subobj__TEST_ARGV'))
-        self.assertEqual('7', configuration.get('env_test'))
-        self.assertEqual('8', configuration.get('some_obj__env_test'))
+        assert configuration is not None
+        assert 1 == configuration.get('some_float')
+        assert 'rand2' == configuration.get('some_subobj:some_string')
+        assert 3 == configuration.get('some_int')
+        assert 3.4 == configuration.get('some_subobj:some_float')
+        assert 'rand4' == configuration.get('some_string')
+        assert 4 == configuration.get('some_subobj:some_int')
+        assert '5' == configuration.get('TEST_ARGV')
+        assert '6' == configuration.get('some_subobj__TEST_ARGV')
+        assert '7' == configuration.get('env_test')
+        assert '8' == configuration.get('some_obj__env_test')
 
+    @fact
     def test_WithExactConfigurations_LastInWins(self):
         # ConfigurationProvider order matters
         #
@@ -97,28 +103,28 @@ class ConfigurationBuilderTests(unittest.TestCase):
             .addEnvironment()\
             .addJson('tests/configs/exact.json')
         configuration = builder.build()
-        self.assertIsNotNone(configuration)
-        self.assertEqual(1, configuration.get('some_int'))
-        self.assertEqual(1.1, configuration.get('some_float'))
-        self.assertEqual('rand1', configuration.get('some_string'))
-        self.assertEqual(1, configuration.get('some_subobj:some_int'))
-        self.assertEqual(1.1, configuration.get('some_subobj:some_float'))
-        self.assertEqual('rand1', configuration.get('some_subobj:some_string'))
+        assert configuration is not None
+        assert 1 == configuration.get('some_int')
+        assert 1.1 == configuration.get('some_float')
+        assert 'rand1' == configuration.get('some_string')
+        assert 1 == configuration.get('some_subobj:some_int')
+        assert 1.1 == configuration.get('some_subobj:some_float')
+        assert 'rand1' == configuration.get('some_subobj:some_string')
         builder.addProvider(appsettings2.providers.TomlConfigurationProvider('tests/configs/exact.toml'))
         configuration = builder.build()
-        self.assertIsNotNone(configuration)
-        self.assertEqual(2, configuration.get('some_int'))
-        self.assertEqual(2.2, configuration.get('some_float'))
-        self.assertEqual('rand2', configuration.get('some_string'))
-        self.assertEqual(2, configuration.get('some_subobj:some_int'))
-        self.assertEqual(2.2, configuration.get('some_subobj:some_float'))
-        self.assertEqual('rand2', configuration.get('some_subobj:some_string'))
+        assert configuration is not None
+        assert 2 == configuration.get('some_int')
+        assert 2.2 == configuration.get('some_float')
+        assert 'rand2' == configuration.get('some_string')
+        assert 2 == configuration.get('some_subobj:some_int')
+        assert 2.2 == configuration.get('some_subobj:some_float')
+        assert 'rand2' == configuration.get('some_subobj:some_string')
         builder.addProvider(appsettings2.providers.YamlConfigurationProvider('tests/configs/exact.yaml'))
         configuration = builder.build()
-        self.assertIsNotNone(configuration)
-        self.assertEqual(3, configuration.get('some_int'))
-        self.assertEqual(3.3, configuration.get('some_float'))
-        self.assertEqual('rand3', configuration.get('some_string'))
-        self.assertEqual(3, configuration.get('some_subobj:some_int'))
-        self.assertEqual(3.3, configuration.get('some_subobj:some_float'))
-        self.assertEqual('rand3', configuration.get('some_subobj:some_string'))
+        assert configuration is not None
+        assert 3 == configuration.get('some_int')
+        assert 3.3 == configuration.get('some_float')
+        assert 'rand3' == configuration.get('some_string')
+        assert 3 == configuration.get('some_subobj:some_int')
+        assert 3.3 == configuration.get('some_subobj:some_float')
+        assert 'rand3' == configuration.get('some_subobj:some_string')

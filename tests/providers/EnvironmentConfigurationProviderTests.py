@@ -3,15 +3,16 @@
 
 import os
 import appsettings2
-import unittest
+from punit import *
 
-class EnvironmentConfigurationProviderTests(unittest.TestCase):
+class EnvironmentConfigurationProviderTests:
 
+    @fact
     def test_BasicVerification(self):
         os.environ['ENV_TEST'] = '1'
         os.environ['some_subobj__ENV_TEST'] = '2'
         provider = appsettings2.providers.EnvironmentConfigurationProvider()
         configuration = appsettings2.Configuration()
         provider.populateConfiguration(configuration)
-        self.assertEqual('1', configuration.get('ENV_TEST'))
-        self.assertEqual('2', configuration.get('some_subobj:ENV_TEST'))
+        assert '1' == configuration.get('ENV_TEST')
+        assert '2' == configuration.get('some_subobj:ENV_TEST')

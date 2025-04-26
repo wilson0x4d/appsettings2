@@ -2,10 +2,11 @@
 # SPDX-License-Identifier: MIT
 
 import appsettings2
-import unittest
+from punit import *
 
-class CommandLineConfigurationProviderTests(unittest.TestCase):
+class CommandLineConfigurationProviderTests:
 
+    @fact
     def test_BasicVerification1(self):
         provider = appsettings2.providers.CommandLineConfigurationProvider([
             '--switch1',
@@ -16,12 +17,13 @@ class CommandLineConfigurationProviderTests(unittest.TestCase):
         ])
         configuration = appsettings2.Configuration()
         provider.populateConfiguration(configuration)
-        self.assertEqual('1', configuration.get('TEST_ARGV'))
-        self.assertEqual('2', configuration.get('some_subobj:TEST_ARGV'))
-        self.assertTrue(configuration.get('switch1'))
-        self.assertEqual('3', configuration.get('switched-arg'))
-        self.assertTrue(configuration.get('switch2'))
+        assert '1' == configuration.get('TEST_ARGV')
+        assert '2' == configuration.get('some_subobj:TEST_ARGV')
+        assert True == (configuration.get('switch1'))
+        assert '3' == configuration.get('switched-arg')
+        assert True == (configuration.get('switch2'))
 
+    @fact
     def test_BasicVerification2(self):
         provider = appsettings2.providers.CommandLineConfigurationProvider([
             'TEST_ARGV=1',
@@ -32,8 +34,8 @@ class CommandLineConfigurationProviderTests(unittest.TestCase):
         ])
         configuration = appsettings2.Configuration()
         provider.populateConfiguration(configuration)
-        self.assertEqual('1', configuration.get('TEST_ARGV'))
-        self.assertEqual('2', configuration.get('some_subobj:TEST_ARGV'))
-        self.assertTrue(configuration.get('switch1'))
-        self.assertEqual('3', configuration.get('switched-arg'))
-        self.assertTrue(configuration.get('switch2'))
+        assert '1' == configuration.get('TEST_ARGV')
+        assert '2' == configuration.get('some_subobj:TEST_ARGV')
+        assert True == (configuration.get('switch1'))
+        assert '3' == configuration.get('switched-arg')
+        assert True == (configuration.get('switch2'))

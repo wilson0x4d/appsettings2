@@ -2,10 +2,11 @@
 # SPDX-License-Identifier: MIT
 
 import appsettings2
-import unittest
+from punit import *
 
-class TomlConfigurationProviderTests(unittest.TestCase):
+class TomlConfigurationProviderTests:
 
+    @fact
     def test_BasicVerification(self):
         provider = appsettings2.providers.TomlConfigurationProvider(
             toml="""
@@ -16,5 +17,5 @@ toml_test = 2
 """)
         configuration = appsettings2.Configuration()
         provider.populateConfiguration(configuration)
-        self.assertEqual('1', configuration.get('toml_test'))
-        self.assertEqual(2, configuration.get('some_subobj:toml_test'))
+        assert '1' == configuration.get('toml_test')
+        assert 2 == configuration.get('some_subobj:toml_test')

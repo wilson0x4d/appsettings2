@@ -2,10 +2,11 @@
 # SPDX-License-Identifier: MIT
 
 import appsettings2
-import unittest
+from punit import *
 
-class YamlConfigurationProviderTests(unittest.TestCase):
+class YamlConfigurationProviderTests:
 
+    @fact
     def test_BasicVerification(self):
         provider = appsettings2.providers.YamlConfigurationProvider(
             yaml="""
@@ -15,5 +16,5 @@ some_subobj:
 """)
         configuration = appsettings2.Configuration()
         provider.populateConfiguration(configuration)
-        self.assertEqual('1', configuration.get('yaml_test'))
-        self.assertEqual(2, configuration.get('some_subobj:yaml_test'))
+        assert '1' == configuration.get('yaml_test')
+        assert 2 == configuration.get('some_subobj:yaml_test')
