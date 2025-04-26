@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: © 2024 Shaun Wilson
+# SPDX-FileCopyrightText: Copyright (C) Shaun Wilson
 # SPDX-License-Identifier: MIT
 
 import os
