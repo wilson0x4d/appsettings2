@@ -20,15 +20,18 @@ jobs:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    - name: "Configure"
+    - name: "Configure Environment"
       run: |
         export SEMVER=$(conventional-semver)
         echo "REGISTRY_NAMESPACE=wilson0x4d" >> "$GITHUB_ENV"
         echo "SEMVER=$SEMVER" >> "$GITHUB_ENV"
         echo "PYPI_REPO=${{ vars.PYPI_REPO }}" >> "$GITHUB_ENV"
-    - name: "Execute"
+        .scripts/init-venv.sh
+    - name: "Execute Build-Time Tests"
       run: |
         cd '${{ gitea.workspace }}'
-        .scripts/init-venv.sh
         .scripts/run-tests.sh
+    - name: "Publish Packages"
+      run: |
+        cd '${{ gitea.workspace }}'
         .scripts/publish-packages.sh

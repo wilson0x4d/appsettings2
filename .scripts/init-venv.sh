@@ -1,11 +1,6 @@
 #!/bin/bash
-# SPDX-FileCopyrightText: © 2024 Shaun Wilson
+# SPDX-FileCopyrightText: Copyright (C) Shaun Wilson
 # SPDX-License-Identifier: MIT
-#
-# initializes the venv for the project in the current
-# directory. installs poetry in that env for dep mgmt
-# and then installs deps using poetry.
-##
 set -eo pipefail
 if [[ "$PYTHON_VERSION" != "" ]]; then
     PYPATH=`which python$PYTHON_VERSION`
@@ -14,5 +9,10 @@ else
 fi
 $PYPATH -m venv --prompt "appsettings2" .venv-bash
 source .venv-bash/bin/activate
-pip install -r requirements-dev.txt
+if [ -f requirements-dev.txt ]; then
+    pip install -r requirements-dev.txt
+fi
+if ! [ -f requirements-dev.txt ]; then
+    pip install -r requirements.txt
+fi
 deactivate
