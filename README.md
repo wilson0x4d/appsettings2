@@ -149,6 +149,59 @@ class ConfigurationProvider(abstract):
 
 Essentially, you read your configuration source and write the configuration data into the specified `Configuration` object. Much of the complexity in dealing with hierarchy and allocation is encapsulated within the impl of `Configuration`. As a result, most providers are less than 20 lines of functional code.
 
+## Helpers
+
+There are several helpers available which simplify loading configurations. Consider the following example:
+
+```python
+import appsettings2
+
+config = appsettings2.getConfiguration()
+```
+
+You can read more about [getConfiguration on readthedocs.io](https://appsettings2.readthedocs.io/en/latest/ref/helpers/getConfiguration.html).
+
+
+The above is equivalent to:
+
+```python
+import appsettings2
+
+config = appsettings2.ConfigurationBuilder()\
+        .addJson('appsettings.json', required=False)\
+        .addJson('appsettings.prod.json', required=False)\
+        .addJson('appsettings.production.json', required=False)\
+        .addJson('appsettings.stage.json', required=False)\
+        .addJson('appsettings.staging.json', required=False)\
+        .addJson('appsettings.qa.json', required=False)\
+        .addJson('appsettings.dev.json', required=False)\
+        .addJson('appsettings.development.json', required=False)\
+        .addJson('appsettings.local.json', required=False)\
+        .addToml('appsettings.json', required=False)\
+        .addToml('appsettings.prod.json', required=False)\
+        .addToml('appsettings.production.json', required=False)\
+        .addToml('appsettings.stage.json', required=False)\
+        .addToml('appsettings.staging.json', required=False)\
+        .addToml('appsettings.qa.json', required=False)\
+        .addToml('appsettings.dev.json', required=False)\
+        .addToml('appsettings.development.json', required=False)\
+        .addToml('appsettings.local.json', required=False)\
+        .addYaml('appsettings.json', required=False)\
+        .addYaml('appsettings.prod.json', required=False)\
+        .addYaml('appsettings.production.json', required=False)\
+        .addYaml('appsettings.stage.json', required=False)\
+        .addYaml('appsettings.staging.json', required=False)\
+        .addYaml('appsettings.qa.json', required=False)\
+        .addYaml('appsettings.dev.json', required=False)\
+        .addYaml('appsettings.development.json', required=False)\
+        .addYaml('appsettings.local.json', required=False)\
+        .addCommandLine()\
+        .addEnvironment()\
+        .build()
+```
+
+The `getConfiguration` helper has parameters to control filename, which providers are used, and to override the variation list (ie. prod, dev, qa, etc.) By default it is implemented to give the broadest stroke when loading app settings.
+
 ## Contact
 
 You can reach me on [Discord](https://discordapp.com/users/307684202080501761) or [open an Issue on Github](https://github.com/wilson0x4d/appsettings2/issues/new/choose).

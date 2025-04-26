@@ -7,6 +7,8 @@ __commit__ = '0abc123'
 from .Configuration import Configuration
 from .ConfigurationBuilder import ConfigurationBuilder
 from .ConfigurationException import ConfigurationException
+from .helpers import getConfiguration
+from . import helpers
 from . import providers
 
 __all__ = [
@@ -14,5 +16,7 @@ __all__ = [
     'Configuration',
     'ConfigurationBuilder',
     'ConfigurationException',
+    'getConfiguration',
+    'helpers',
     'providers'
 ]

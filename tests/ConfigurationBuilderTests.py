@@ -128,3 +128,30 @@ class ConfigurationBuilderTests:
         assert 3 == configuration.get('some_subobj:some_int')
         assert 3.3 == configuration.get('some_subobj:some_float')
         assert 'rand3' == configuration.get('some_subobj:some_string')
+
+    @fact
+    def getConfigurationBasicVerification(self) -> None:
+        configuration = appsettings2.getConfiguration('tests/configs/exact', toml=False, yaml=False)
+        assert configuration is not None
+        assert 1 == configuration.get('some_int')
+        assert 1.1 == configuration.get('some_float')
+        assert 'rand1' == configuration.get('some_string')
+        assert 1 == configuration.get('some_subobj:some_int')
+        assert 1.1 == configuration.get('some_subobj:some_float')
+        assert 'rand1' == configuration.get('some_subobj:some_string')
+        configuration = appsettings2.getConfiguration('tests/configs/exact', json=False, yaml=False)
+        assert configuration is not None
+        assert 2 == configuration.get('some_int')
+        assert 2.2 == configuration.get('some_float')
+        assert 'rand2' == configuration.get('some_string')
+        assert 2 == configuration.get('some_subobj:some_int')
+        assert 2.2 == configuration.get('some_subobj:some_float')
+        assert 'rand2' == configuration.get('some_subobj:some_string')
+        configuration = appsettings2.getConfiguration('tests/configs/exact', json=False, toml=False)
+        assert configuration is not None
+        assert 3 == configuration.get('some_int')
+        assert 3.3 == configuration.get('some_float')
+        assert 'rand3' == configuration.get('some_string')
+        assert 3 == configuration.get('some_subobj:some_int')
+        assert 3.3 == configuration.get('some_subobj:some_float')
+        assert 'rand3' == configuration.get('some_subobj:some_string')
