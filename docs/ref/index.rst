@@ -8,5 +8,6 @@ Reference
     Configuration <Configuration>
     ConfigurationBuilder <ConfigurationBuilder>
     providers.* <providers/index>
+    helpers.* <helpers/index>
 
 .. automodule:: appsettings2

@@ -159,48 +159,7 @@ import appsettings2
 config = appsettings2.getConfiguration()
 ```
 
-You can read more about [getConfiguration on readthedocs.io](https://appsettings2.readthedocs.io/en/latest/ref/helpers/getConfiguration.html).
-
-
-The above is equivalent to:
-
-```python
-import appsettings2
-
-config = appsettings2.ConfigurationBuilder()\
-        .addJson('appsettings.json', required=False)\
-        .addJson('appsettings.prod.json', required=False)\
-        .addJson('appsettings.production.json', required=False)\
-        .addJson('appsettings.stage.json', required=False)\
-        .addJson('appsettings.staging.json', required=False)\
-        .addJson('appsettings.qa.json', required=False)\
-        .addJson('appsettings.dev.json', required=False)\
-        .addJson('appsettings.development.json', required=False)\
-        .addJson('appsettings.local.json', required=False)\
-        .addToml('appsettings.json', required=False)\
-        .addToml('appsettings.prod.json', required=False)\
-        .addToml('appsettings.production.json', required=False)\
-        .addToml('appsettings.stage.json', required=False)\
-        .addToml('appsettings.staging.json', required=False)\
-        .addToml('appsettings.qa.json', required=False)\
-        .addToml('appsettings.dev.json', required=False)\
-        .addToml('appsettings.development.json', required=False)\
-        .addToml('appsettings.local.json', required=False)\
-        .addYaml('appsettings.json', required=False)\
-        .addYaml('appsettings.prod.json', required=False)\
-        .addYaml('appsettings.production.json', required=False)\
-        .addYaml('appsettings.stage.json', required=False)\
-        .addYaml('appsettings.staging.json', required=False)\
-        .addYaml('appsettings.qa.json', required=False)\
-        .addYaml('appsettings.dev.json', required=False)\
-        .addYaml('appsettings.development.json', required=False)\
-        .addYaml('appsettings.local.json', required=False)\
-        .addCommandLine()\
-        .addEnvironment()\
-        .build()
-```
-
-The `getConfiguration` helper has parameters to control filename, which providers are used, and to override the variation list (ie. prod, dev, qa, etc.) By default it is implemented to give the broadest stroke when loading app settings.
+You can read more about `getConfiguration` in [the docs](https://appsettings2.readthedocs.io/en/latest/ref/helpers/getConfiguration.html).
 
 ## Contact
 
