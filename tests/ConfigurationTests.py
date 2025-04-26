@@ -4,7 +4,7 @@
 from fakes import *
 import json
 import os
-import src as appsettings2
+import appsettings2
 import unittest
 
 class ConfigurationTests(unittest.TestCase):

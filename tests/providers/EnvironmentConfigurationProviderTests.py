@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT
 
 import os
-import src as appsettings2
+import appsettings2
 import unittest
 
 class EnvironmentConfigurationProviderTests(unittest.TestCase):

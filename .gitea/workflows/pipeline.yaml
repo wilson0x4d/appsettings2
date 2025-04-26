@@ -7,7 +7,7 @@ on:
     branches:
     - master
     paths:
-    - 'src/**'
+    - 'appsettings2/**'
     - '!pyproject.toml'
     - '!README.md'
     - '!docs/**'
@@ -29,6 +29,6 @@ jobs:
     - name: "Execute"
       run: |
         cd '${{ gitea.workspace }}'
-        sys/init-venv.sh
-        sys/run-tests.sh
-        sys/publish-packages.sh
+        .scripts/init-venv.sh
+        .scripts/run-tests.sh
+        .scripts/publish-packages.sh

@@ -6,13 +6,9 @@ set -eo pipefail
 python3 -m venv --prompt "appsettings2" .venv-bash
 source .venv-bash/bin/activate
 sed "s/0.0.0/$SEMVER/g" --in-place pyproject.toml
-sed "s/0.0.0/$SEMVER/g" --in-place src/__init__.py
-if [ -d ./appsettings2 ]; then
-  rm ./appsettings2
-fi
+sed "s/0.0.0/$SEMVER/g" --in-place appsettings2/__init__.py
 rm -rf build/
 rm -rf dist/
 rm -rf *.egg-info/
-ln -s ./src ./appsettings2
 python3 -m build
 python3 -m twine upload --repository $PYPI_REPO dist/*

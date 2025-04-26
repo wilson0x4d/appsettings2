@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: © 2024 Shaun Wilson
 # SPDX-License-Identifier: MIT
 
-import src as appsettings2
+import appsettings2
 import unittest
 
 class YamlConfigurationProviderTests(unittest.TestCase):

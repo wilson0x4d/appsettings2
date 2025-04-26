@@ -8,12 +8,12 @@
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath('..'))
-import src
-sys.modules['appsettings2'] = src
+PACKAGE_PARENT = '..'
+SCRIPT_DIR = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__))))
+sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
 
 project = 'appsettings2'
-copyright = '2024, Shaun Wilson'
+copyright = 'Shaun Wilson'
 author = 'Shaun Wilson'
 release = '1.0'
 

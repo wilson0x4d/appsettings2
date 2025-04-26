@@ -9,7 +9,7 @@
 # this script needs to be sourced or rc'd into
 # the shell to work correctly, fx:
 #
-# source sys/with-venv.sh
+# source .scripts/with-venv.sh
 #
 ##
 source ~/.bashrc
