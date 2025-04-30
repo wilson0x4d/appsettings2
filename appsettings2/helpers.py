@@ -7,7 +7,7 @@ from .providers import *
 
 def getConfiguration(baseName:str = 'appsettings', json:bool = True, toml:bool = True, yaml:bool = True, cli:bool = True, environment:bool = True, variations:list[str] = ['', 'prod', 'production', 'stage', 'staging', 'qa', 'dev', 'development', 'local']) -> Configuration:
     builder:ConfigurationBuilder = ConfigurationBuilder()
-    variations = variations if variations is not None and len(variations) == 0 else [None]
+    variations = variations if variations is not None and len(variations) > 0 else [None]
     for variation in variations:
         variation = f'.{variation}' if variation is not None and len(variation) > 0 else ''
         if json:
