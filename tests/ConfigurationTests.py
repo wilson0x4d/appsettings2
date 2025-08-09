@@ -414,7 +414,7 @@ class ConfigurationTests:
                 assert i+k == e.value[k]
 
     @fact
-    def test_SupportsInitializedSettablePropertyBinding(self):
+    def test_MergesInitializedNonSettablePropertyBindingWhenSourceValueIsList(self):
         config = appsettings2.Configuration()
         config.set(
             'keyValuePairs',
@@ -433,7 +433,8 @@ class ConfigurationTests:
                 },
             ]
         )
-        obj:FakeInitializedNonSettablePropObject = config.bind(FakeInitializedNonSettablePropObject())
+        fake = FakeInitializedNonSettablePropObject()
+        obj:FakeInitializedNonSettablePropObject = config.bind(fake)
         assert obj.keyValuePairs is not None
         assert 3 == len(obj.keyValuePairs)
         i = 0
@@ -443,6 +444,29 @@ class ConfigurationTests:
             assert str(i) == e.key
             for k in range(3):
                 assert i+k == e.value[k]
+
+    @fact
+    def test_FailsInitializedNonSettablePropertyBindingWhenSourceValueIsNonNull(self):
+        config = appsettings2.Configuration()
+        config.set(
+            'validity',
+            True
+        )
+        fake = FakeInitializedNonSettablePropObject()
+        exceptions.raises[Exception](lambda: config.bind(fake))
+
+    @fact
+    def test_SkipsInitializedNonSettablePropertyBindingWithNullSourceValue(self):
+        # verifies that nonsettable, pre-initialized properties do not error when the binding source contains a null value
+        config = appsettings2.Configuration()
+        config.set(
+            'keyValuePairs',
+            None
+        )
+        fake = FakeInitializedNonSettablePropObject()
+        obj:FakeInitializedNonSettablePropObject = config.bind(fake)
+        assert obj.keyValuePairs is not None
+        assert 0 == len(obj.keyValuePairs)
 
     @fact
     def test_BindInheritedAttributes(self):

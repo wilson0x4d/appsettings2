@@ -31,12 +31,15 @@ class FakeUninitializedSettablePropObject:
         return self.__keyValuePairs
 
     @keyValuePairs.setter
-    def keyValuePairs(self, value:list[FakeKeyValuePropPair]) -> list[FakeKeyValuePropPair]:
+    def keyValuePairs(self, value:list[FakeKeyValuePropPair]) -> None:
         self.__keyValuePairs = value
 
 class FakeInitializedNonSettablePropObject:
 
-    __keyValuePairs:list[FakeKeyValuePropPair] = []
+    __keyValuePairs:list[FakeKeyValuePropPair]
+
+    def __init__(self) -> None:
+        self.__keyValuePairs = []
 
     @property
     def keyValuePairs(self) -> list[FakeKeyValuePropPair]:

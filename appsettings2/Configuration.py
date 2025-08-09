@@ -89,11 +89,18 @@ class Configuration:
                     except AttributeError:
                         lval = None
                         self.__logger.debug(f'Failed to bind {aname}', exc_info=True)
-                if (not hasattr(prop, 'fset')) or (getattr(prop, 'fset') is None):
+                if (not hasattr(prop, 'fset') or getattr(prop, 'fset') is None):
                     # NOTE: lval is not settable
-                    if lval is None or not issubclass(type(lval), list):
-                        # lval not initialized or not a supported target
+                    if rval is None:
+                        # no assigment attempt will be made
                         continue
+                    elif lval is not None:
+                        if rval is not None and lval == rval:
+                            # same value, no need to assign
+                            continue
+                        elif not (issubclass(type(lval), list) and issubclass(type(rval), list)):
+                            # non-list values cannot be merged
+                            raise Exception(f'Cannot bind `None` to attribute `{aname}`')
                 phints = typing.get_type_hints(getattr(prop, 'fget'))
                 if phints is None or (not issubclass(type(phints), dict)):
                     # NOTE: can't get hints from getter, can't bind
