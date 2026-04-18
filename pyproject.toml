@@ -25,7 +25,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "mypy",
-    "punit>=1.2.8",
+    "punit>=1.2.10",
     "twine",
     "types-PyYAML"
 ]

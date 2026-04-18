@@ -15,7 +15,7 @@ sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
 project = 'appsettings2'
 copyright = '2025 Shaun Wilson'
 author = 'Shaun Wilson'
-release = '1.0'
+release = '0.0.0'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
