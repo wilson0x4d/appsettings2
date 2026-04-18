@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (C) Shaun Wilson
+# SPDX-FileCopyrightText: © 2025 Shaun Wilson
 # SPDX-License-Identifier: MIT
 
 __version__ = '0.0.0'
@@ -10,6 +10,7 @@ from .ConfigurationException import ConfigurationException
 from .helpers import getConfiguration
 from . import helpers
 from . import providers
+
 
 __all__ = [
     '__version__', '__commit__',

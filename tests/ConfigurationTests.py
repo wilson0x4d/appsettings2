@@ -1,59 +1,60 @@
-# SPDX-FileCopyrightText: Copyright (C) Shaun Wilson
+# SPDX-FileCopyrightText: © 2025 Shaun Wilson
 # SPDX-License-Identifier: MIT
 
 import appsettings2
 import json
 import os
-from punit import *
+from punit import fact, exceptions, collections
 
-from tests.fakes.FakeConfigObj import FakeConfigObj
-from tests.fakes.FakeComplexTypes import FakeComplexObject, FakeKeyValuePair
-from tests.fakes.FakeInheritanceTypes import FakeSubSubClass
-from tests.fakes.FakePropertyObjects import FakeInitializedNonSettablePropObject, FakeKeyValuePropPair, FakeUninitializedSettablePropObject
+from .fakes.FakeConfigObj import FakeConfigObj
+from .fakes.FakeComplexTypes import FakeComplexObject, FakeKeyValuePair
+from .fakes.FakeInheritanceTypes import FakeSubSubClass
+from .fakes.FakePropertyObjects import FakeInitializedNonSettablePropObject, FakeKeyValuePropPair, FakeUninitializedSettablePropObject
+
 
 class ConfigurationTests:
 
     @fact
-    def test_CanWriteDunderKeys(self):
+    def test_CanWriteDunderKeys(self) -> None:
         config = appsettings2.Configuration()
         config.set('THIS__IS_A__TEST', 5)
         assert 5 == config.THIS.IS_A.TEST
 
     @fact
-    def test_CanReadDunderKeys(self):
+    def test_CanReadDunderKeys(self) -> None:
         config = appsettings2.Configuration()
         config.set('THIS__IS_A__TEST', 5)
         v = config.get('THIS__IS_A__TEST')
         assert 5 == v
 
     @fact
-    def test_CanWriteColonKeys(self):
+    def test_CanWriteColonKeys(self) -> None:
         config = appsettings2.Configuration()
         config.set('THIS:IS_A:TEST', 5)
         assert 5 == config.THIS.IS_A.TEST
 
     @fact
-    def test_CanReadColonKeys(self):
+    def test_CanReadColonKeys(self) -> None:
         config = appsettings2.Configuration()
         config.set('THIS:IS_A:TEST', 5)
         v = config.get('THIS:IS_A:TEST')
         assert 5 == v
 
     @fact
-    def test_CanWritePeriodKeys(self):
+    def test_CanWritePeriodKeys(self) -> None:
         config = appsettings2.Configuration()
         config.set('THIS.IS_A.TEST', 5)
         assert 5 == config.THIS_IS_A_TEST
 
     @fact
-    def test_CanReadPeriodKeys(self):
+    def test_CanReadPeriodKeys(self) -> None:
         config = appsettings2.Configuration()
         config.set('THIS.IS_A.TEST', 5)
         v = config.get('THIS.IS_A.TEST')
         assert 5 == v
 
     @fact
-    def test_CanReadWriteMixedKeys(self):
+    def test_CanReadWriteMixedKeys(self) -> None:
         config = appsettings2.Configuration()
         config.set('THIS:IS_A.TEST', 5)
         v = config.get('THIS__IS_A.TEST')
@@ -61,7 +62,7 @@ class ConfigurationTests:
         assert 5 == config.THIS.IS_A_TEST
 
     @fact
-    def test_IsDictionaryLike(self):
+    def test_IsDictionaryLike(self) -> None:
         config = appsettings2.Configuration()
         exceptions.raises[KeyError](lambda: config['test'])
         # confirm basic key-value semantics
@@ -117,7 +118,7 @@ class ConfigurationTests:
         assert 1 == config['test']['hierarchy']
 
     @fact
-    def test_ToDictionary_BasicVerification(self):
+    def test_ToDictionary_BasicVerification(self) -> None:
         config = appsettings2.Configuration()
         config.set('THIS:IS_A__TEST1', 1)
         config.set('THIS__IS_A:TEST2', 2.2)
@@ -156,7 +157,7 @@ class ConfigurationTests:
 
 
     @fact
-    def test_FromDictionary_BasicVerification(self):
+    def test_FromDictionary_BasicVerification(self) -> None:
         expected = {
             'this': {
                 'is_a': {
@@ -199,7 +200,7 @@ class ConfigurationTests:
         actual = config.toDictionary()
         assert collections.areSame(expected, actual)
 
-    def __getSubsetConfiguration(self):
+    def __getSubsetConfiguration(self) -> appsettings2.Configuration:
         # "subset configurations" are a set of
         # configurations which each configure a subset
         # of the entire config, and are meant to be
@@ -232,7 +233,7 @@ class ConfigurationTests:
         return configuration
 
     @fact
-    def test_WithSubsets_ToDictionary_MustSerialize(self):
+    def test_WithSubsets_ToDictionary_MustSerialize(self) -> None:
         configuration = self.__getSubsetConfiguration()
         d = configuration.toDictionary()
         assert d is not None
@@ -240,7 +241,7 @@ class ConfigurationTests:
         assert s is not None
 
     @fact
-    def test_WithSubsets_MustBind(self):
+    def test_WithSubsets_MustBind(self) -> None:
         configuration = self.__getSubsetConfiguration()
         obj = FakeConfigObj()
         o = configuration.bind(obj)
@@ -257,7 +258,7 @@ class ConfigurationTests:
         assert 8, obj.some_subobj.env_test
  
     @fact
-    def test_AttributesPreserveCase_ProvidesCaseInsensitiveAccess(self):
+    def test_AttributesPreserveCase_ProvidesCaseInsensitiveAccess(self) -> None:
         configuration = appsettings2.Configuration()
         # confirm that keys are case-insensitive
         configuration.set('UPPER_CASE_KEY', 1)
@@ -298,7 +299,7 @@ class ConfigurationTests:
         assert 3 == configuration.get('MixeD_cASe_KeY')
 
     @fact
-    def test_NormalizeOptionForcesUpperCase_StillProvidesCaseInsensitiveAccess(self):
+    def test_NormalizeOptionForcesUpperCase_StillProvidesCaseInsensitiveAccess(self) -> None:
         configuration = appsettings2.Configuration(normalize=True)
         # confirm that keys are case-insensitive
         configuration.set('UPPER_CASE_KEY', 1)
@@ -339,7 +340,7 @@ class ConfigurationTests:
         assert 3 == configuration.get('MixeD_cASe_KeY')
 
     @fact
-    def test_ScrubkeysOptionGeneratesLexerFriendlyAttributes(self):
+    def test_ScrubkeysOptionGeneratesLexerFriendlyAttributes(self) -> None:
         configuration = appsettings2.Configuration(scrubkeys=True)
         configuration.set('basic#verification', 1)
         # confirm keys are accessible under their original name
@@ -353,7 +354,7 @@ class ConfigurationTests:
         assert 2 == configuration.get('basic#verification')
 
     @fact
-    def test_SupportsTypedLists(self):
+    def test_SupportsTypedLists(self) -> None:
         provider = appsettings2.providers.JsonConfigurationProvider(
             json="""
             {
@@ -383,7 +384,7 @@ class ConfigurationTests:
             assert f'value{i}' == e.value
 
     @fact
-    def test_SupportsUninitializedSettablePropertyBinding(self):
+    def test_SupportsUninitializedSettablePropertyBinding(self) -> None:
         config = appsettings2.Configuration()
         config.set(
             'keyValuePairs',
@@ -414,7 +415,7 @@ class ConfigurationTests:
                 assert i+k == e.value[k]
 
     @fact
-    def test_MergesInitializedNonSettablePropertyBindingWhenSourceValueIsList(self):
+    def test_MergesInitializedNonSettablePropertyBindingWhenSourceValueIsList(self) -> None:
         config = appsettings2.Configuration()
         config.set(
             'keyValuePairs',
@@ -446,7 +447,7 @@ class ConfigurationTests:
                 assert i+k == e.value[k]
 
     @fact
-    def test_FailsInitializedNonSettablePropertyBindingWhenSourceValueIsNonNull(self):
+    def test_FailsInitializedNonSettablePropertyBindingWhenSourceValueIsNonNull(self) -> None:
         config = appsettings2.Configuration()
         config.set(
             'validity',
@@ -456,7 +457,7 @@ class ConfigurationTests:
         exceptions.raises[Exception](lambda: config.bind(fake))
 
     @fact
-    def test_SkipsInitializedNonSettablePropertyBindingWithNullSourceValue(self):
+    def test_SkipsInitializedNonSettablePropertyBindingWithNullSourceValue(self) -> None:
         # verifies that nonsettable, pre-initialized properties do not error when the binding source contains a null value
         config = appsettings2.Configuration()
         config.set(
@@ -469,7 +470,7 @@ class ConfigurationTests:
         assert 0 == len(obj.keyValuePairs)
 
     @fact
-    def test_BindInheritedAttributes(self):
+    def test_BindInheritedAttributes(self) -> None:
         config = appsettings2.Configuration()
         config.set('first', 1)
         config.set('second', 2)
@@ -483,7 +484,7 @@ class ConfigurationTests:
         assert '1' == obj.first
 
     @fact
-    def test_Bind_WhenKeyIsNone_MustSucceed(self):
+    def test_Bind_WhenKeyIsNone_MustSucceed(self) -> None:
         config = appsettings2.Configuration()
         expected = FakeComplexObject()
         actual = config.bind(expected, 'does_not_exist')

@@ -1,0 +1,11 @@
+#!/bin/bash
+# SPDX-FileCopyrightText: © 2025 Shaun Wilson
+# SPDX-License-Identifier: MIT
+##
+set -eo pipefail
+if [ -z "$VIRTUAL_ENV" ]; then
+    source .venv/bin/activate
+fi
+mypy src
+MYPYPATH=src mypy --namespace-packages --explicit-package-bases tests
+PYTHONPATH=src punit --trait '!integration' --trait '!hardcoded' --trait '!longrunning' --trait '!manual' # --report html --output report.html

@@ -1,9 +1,13 @@
 __pycache__
 .vscode/
 .venv-*/
-.v2s/
+.venv/
 .DS_Store
 build/
 dist/
 *.egg-info/
 docs/_build/
+*.xml
+*.html
+requirement*.txt
+.mypy_cache

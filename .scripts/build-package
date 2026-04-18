@@ -1,0 +1,14 @@
+#!/bin/bash
+# SPDX-FileCopyrightText: © 2025 Shaun Wilson
+# SPDX-License-Identifier: MIT
+##
+set -eo pipefail
+if [ -z "$VIRTUAL_ENV" ]; then
+    source .venv/bin/activate
+fi
+sed "s/0.0.0/$SEMVER/g" --in-place pyproject.toml
+sed "s/0.0.0/$SEMVER/g" --in-place src/appsettings2/__init__.py
+rm -rf build/
+rm -rf dist/
+rm -rf src/*.egg-info/
+python3 -m build

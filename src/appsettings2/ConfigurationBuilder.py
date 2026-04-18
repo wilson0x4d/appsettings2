@@ -1,13 +1,13 @@
-# SPDX-FileCopyrightText: Copyright (C) Shaun Wilson
+# SPDX-FileCopyrightText: © 2025 Shaun Wilson
 # SPDX-License-Identifier: MIT
 
 from .Configuration import Configuration
 from .ConfigurationException import ConfigurationException
 from .providers import *
-import typing
+from typing import Optional
 
 type FileDescriptor = int
-type any = typing.Any
+
 
 class ConfigurationBuilder:
     """
@@ -56,7 +56,7 @@ class ConfigurationBuilder:
         """
         return self.addProvider(EnvironmentConfigurationProvider())
 
-    def addJson(self, filepath:str = None, *, json:str = None, fd:FileDescriptor = None, required:bool = True) -> 'ConfigurationBuilder':
+    def addJson(self, filepath:Optional[str] = None, *, json:Optional[str] = None, fd:Optional[FileDescriptor] = None, required:bool = True) -> 'ConfigurationBuilder':
         """
         Adds a :py:class:`~appsettings2.providers.JsonConfigurationProvider`.
         The `filepath`, `json`, and `fd` parameters are mutually exclusive.
@@ -69,7 +69,7 @@ class ConfigurationBuilder:
         """
         return self.addProvider(JsonConfigurationProvider(filepath=filepath, json=json, fd=fd, required=required))
 
-    def addToml(self, filepath:str = None, *, toml:str = None, fd:FileDescriptor = None, required:bool = True) -> 'ConfigurationBuilder':
+    def addToml(self, filepath:Optional[str] = None, *, toml:Optional[str] = None, fd:Optional[FileDescriptor] = None, required:bool = True) -> 'ConfigurationBuilder':
         """
         Adds a :py:class:`~appsettings2.providers.TomlConfigurationProvider`.
         The `filepath`, `toml`, and `fd` parameters are mutually exclusive.
@@ -82,7 +82,7 @@ class ConfigurationBuilder:
         """
         return self.addProvider(TomlConfigurationProvider(filepath=filepath, toml=toml, fd=fd, required=required))
 
-    def addYaml(self, filepath:str = None, *, yaml:str = None, fd:FileDescriptor = None, required:bool = True) -> 'ConfigurationBuilder':
+    def addYaml(self, filepath:Optional[str] = None, *, yaml:Optional[str] = None, fd:Optional[FileDescriptor] = None, required:bool = True) -> 'ConfigurationBuilder':
         """
         Adds a :py:class:`~appsettings2.providers.YamlConfigurationProvider`.
         The `filepath`, `yaml`, and `fd` parameters are mutually exclusive.

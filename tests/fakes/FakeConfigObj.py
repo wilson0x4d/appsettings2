@@ -1,9 +1,8 @@
-# SPDX-FileCopyrightText: Copyright (C) Shaun Wilson
+# SPDX-FileCopyrightText: © 2025 Shaun Wilson
 # SPDX-License-Identifier: MIT
 
 import typing
 
-FakeConfigObj = typing.ForwardRef('FakeConfigObj')
 
 class FakeConfigObj:
 
@@ -13,7 +12,7 @@ class FakeConfigObj:
     some_int:int
     some_list:list
     some_string:str
-    some_subobj:FakeConfigObj
+    some_subobj:'FakeConfigObj'
 
     def fn1(self):
         return -1

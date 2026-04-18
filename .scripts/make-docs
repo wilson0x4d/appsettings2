@@ -1,8 +1,10 @@
 #!/bin/bash
-# SPDX-FileCopyrightText: Copyright (C) Shaun Wilson
+# SPDX-FileCopyrightText: © Shaun Wilson
 # SPDX-License-Identifier: MIT
 set -eo pipefail
-source .venv-bash/bin/activate
+if [ -z "$VIRTUAL_ENV" ]; then
+    source .venv/bin/activate
+fi
 if [[ "$1" == "" ]]; then
     pip install sphinx_rtd_theme
 fi

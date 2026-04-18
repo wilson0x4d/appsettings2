@@ -1,9 +1,10 @@
-# SPDX-FileCopyrightText: Copyright (C) Shaun Wilson
+# SPDX-FileCopyrightText: © 2025 Shaun Wilson
 # SPDX-License-Identifier: MIT
 
-import os
 import appsettings2
-from punit import *
+import os
+from punit import fact
+
 
 class EnvironmentConfigurationProviderTests:
 

@@ -1,6 +1,11 @@
 #!/bin/pwsh
-# SPDX-FileCopyrightText: Copyright (C) Shaun Wilson
+# SPDX-FileCopyrightText: © Shaun Wilson
 # SPDX-License-Identifier: MIT
+#
+# initializes the venv for the project in the current
+# directory, including performing initial dependency
+# installation.
+##
 $ErrorActionPreference = "Stop"
 if ($env:PYTHON_VERSION -ne "") {
     $PYPATH=$(Get-Command "python$env:PYTHON_VERSION").Source
@@ -9,5 +14,7 @@ if ($env:PYTHON_VERSION -ne "") {
 }
 & $PYPATH -m venv --prompt "appsettings2" .venv-pwsh
 . .\.venv-pwsh\Scripts\Activate.ps1
-& python -m pip install -r requirements-dev.txt
-deactivate
+& pip install --upgrade pip
+& pip install pip-tools
+& pip-compile -o requirements.txt --all-extras --strip-extras pyproject.toml
+& python -m pip install -r requirements.txt

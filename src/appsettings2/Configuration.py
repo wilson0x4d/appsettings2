@@ -1,23 +1,23 @@
-# SPDX-FileCopyrightText: Copyright (C) Shaun Wilson
+# SPDX-FileCopyrightText: © 2025 Shaun Wilson
 # SPDX-License-Identifier: MIT
 
 import logging
-from .ConfigurationException import ConfigurationException
 import json
 import re
 import types
 import typing
+from typing import Any, TYPE_CHECKING
 import unicodedata
 
-type any = typing.Any
-Configuration = typing.ForwardRef('Configuration')
+from .ConfigurationException import ConfigurationException
+
 
 class Configuration:
     """
     The :py:class:`~appsettings2.Configuration` class is how applications access configuration data populated by :py:class:`~appsettings2.providers.ConfigurationProvider` objects. It exposes configuration data through dynamic object attributes as well as a dictionary-like interface.
     """
 
-    __key_scrub_re:re.Pattern
+    __key_scrub_re:re.Pattern|None
     __keys:dict[str, str]
     __normalize:bool
 
@@ -31,6 +31,13 @@ class Configuration:
         self.__normalize = normalize
         self.__key_scrub_re = None if not scrubkeys else re.compile(r'[^A-Za-z0-9_]', re.IGNORECASE | re.UNICODE)
 
+    if TYPE_CHECKING:
+        # This tells mypy that accessing any attribute returns 'Any'
+        def __getattr__(self, name: str) -> Any: ...
+        
+        # This tells mypy that setting any attribute is allowed
+        def __setattr__(self, name: str, value: Any) -> None: ...
+
     def __delitem__(self, key:str) -> None:
         key = key.upper()
         k = self.__keys.get(key)
@@ -38,7 +45,7 @@ class Configuration:
             delattr(self, k)
             self.__keys.pop(key)
 
-    def __getitem__(self, key:str) -> any:
+    def __getitem__(self, key:str) -> Any:
         """
         Gets the configuration data associated with the specified `key`.
 
@@ -64,7 +71,7 @@ class Configuration:
     def __len__(self) -> int:
         return len(self.__keys)
 
-    def __recursiveBind(self, target:object, source:Configuration|dict) -> any:
+    def __recursiveBind(self, target:object, source:Configuration|dict) -> Any:
         if target is None:
             return None
         if hasattr(target, '__class__'):
@@ -112,14 +119,11 @@ class Configuration:
             if rval is None:
                 setattr(target, aname, None)
             elif ahint is float:
-                v = float(rval)
-                setattr(target, aname, v)
+                setattr(target, aname, float(rval))
             elif ahint is int:
-                v = int(rval)
-                setattr(target, aname, v)
+                setattr(target, aname, int(rval))
             elif ahint is str:
-                v = str(rval)
-                setattr(target, aname, v)
+                setattr(target, aname, str(rval))
             elif isinstance(rval, Configuration):
                 if typing.get_origin(ahint) is dict:
                     lval = rval.toDictionary()
@@ -135,13 +139,14 @@ class Configuration:
                     lval = ahint()
                     setattr(target, aname, lval)
                 for e in rval:
-                    v = self.__recursiveBindType(elementType, e)
-                    lval.append(v)
+                    lval.append(
+                        self.__recursiveBindType(elementType, e)
+                    )
             else:
                 setattr(target, aname, rval)
         return target
 
-    def __recursiveBindType(self, elementType:type, source:any) -> any:
+    def __recursiveBindType(self, elementType:type, source:Any) -> Any:
         if isinstance(source, elementType):
             return source
         elif elementType is float:
@@ -159,8 +164,7 @@ class Configuration:
     def __scrub_key(self, key:str) -> str:
         """Scrubs a key for use as an attribute/identifier according to the Python lexer/standard."""
         key = key.replace(':', '__').replace('.', '_')
-        return key if None == self.__key_scrub_re else \
-            self.__key_scrub_re.sub(
+        return key if self.__key_scrub_re is None else self.__key_scrub_re.sub(
                 self.__scrub_uc,
                 unicodedata.normalize(
                     'NFKC',
@@ -173,13 +177,13 @@ class Configuration:
             case _:
                 return '_'
 
-    def __setitem__(self, key:str, value:any) -> None:
+    def __setitem__(self, key:str, value:Any) -> None:
         self.set(key, value)
 
     def __str__(self) -> str:
         return json.dumps(self.toDictionary())
 
-    def bind(self, target:object, key:str|None = None) -> any:
+    def bind(self, target:object, key:str|None = None) -> Any:
         """
         Binds the configuration values into the target object.
         Can optionally specify a configuration key to bind from.
@@ -225,7 +229,7 @@ class Configuration:
             config.set(kvp[0], v)
         return config
 
-    def get(self, key:str, default:any = None) -> any:
+    def get(self, key:str, default:Any = None) -> Any:
         """
         Gets the configuration data associated with the specified `key`.
 
@@ -249,7 +253,7 @@ class Configuration:
     def has_key(self, key:str) -> bool:
         return self.__keys.get(key.upper()) is not None
 
-    def items(self) -> list[tuple[str,any]]:
+    def items(self) -> list[tuple[str,Any]]:
         it = []
         for k in self.keys():
             v = self.get(k)
@@ -257,14 +261,14 @@ class Configuration:
         return it
 
     def keys(self) -> list[str]:
-        return self.__keys.values()
+        return list(self.__keys.values())
 
-    def pop(self, key:str) -> any:
+    def pop(self, key:str) -> Any:
         value = self[key]
         del self[key]
         return value
 
-    def set(self, key:str, value:any) -> None:
+    def set(self, key:str, value:Any) -> None:
         """
         Sets the configuration data for the specified `key`.
 
@@ -314,13 +318,13 @@ class Configuration:
         else:
             o.set(key, value)
 
-    def toDictionary(self) -> dict:
+    def toDictionary(self) -> dict[str,Any]:
         """
         Creates a dictionary from the `Configuration` object.
 
         :return: A dictionary containing all keys and their associated values, in a structure that mimics the structure if the data contained within the `Configuration` object.
         """
-        result = {}
+        result = dict[str,Any]()
         for k in self.__keys.values():
             v = getattr(self, self.__scrub_key(k))
             if isinstance(v, Configuration):
@@ -337,7 +341,7 @@ class Configuration:
                 result[k] = v
         return result
 
-    def values(self) -> list[any]:
+    def values(self) -> list[Any]:
         values = []
         for k in self.__keys.values():
             v = getattr(self, self.__scrub_key(k))

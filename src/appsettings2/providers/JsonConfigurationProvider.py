@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (C) Shaun Wilson
+# SPDX-FileCopyrightText: © 2025 Shaun Wilson
 # SPDX-License-Identifier: MIT
 
 from .ConfigurationProvider import ConfigurationProvider
@@ -6,19 +6,19 @@ from ..Configuration import Configuration
 from ..ConfigurationException import ConfigurationException
 import json as _json
 import os
-from typing import Any
+from typing import Optional
 
 type FileDescriptor = int
-type any = Any
+
 
 class JsonConfigurationProvider(ConfigurationProvider):
     """
     Populates structured configuration data from JSON.
     """
 
-    __obj:dict
+    __obj:dict|None
 
-    def __init__(self, filepath:str = None, *, json:str = None, fd:FileDescriptor = None, required:bool = True):
+    def __init__(self, filepath:Optional[str] = None, *, json:Optional[str] = None, fd:Optional[FileDescriptor] = None, required:bool = True):
         """
         The `filepath`, `json`, and `fd` parameters are mutually exclusive.
         

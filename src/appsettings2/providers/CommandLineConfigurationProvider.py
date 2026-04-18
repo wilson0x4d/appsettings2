@@ -1,9 +1,12 @@
-# SPDX-FileCopyrightText: Copyright (C) Shaun Wilson
+# SPDX-FileCopyrightText: © 2025 Shaun Wilson
 # SPDX-License-Identifier: MIT
 
-from .ConfigurationProvider import ConfigurationProvider
-from ..Configuration import Configuration
 import sys
+from typing import Optional
+
+from ..Configuration import Configuration
+from .ConfigurationProvider import ConfigurationProvider
+
 
 class CommandLineConfigurationProvider(ConfigurationProvider):
     """
@@ -12,7 +15,7 @@ class CommandLineConfigurationProvider(ConfigurationProvider):
 
     __argv:list[str]
 
-    def __init__(self, argv:list[str] = None):
+    def __init__(self, argv:Optional[list[str]] = None):
         """
         :param argv: Optional arg list used in lieu of `sys.argv`, defaults to None.
         """

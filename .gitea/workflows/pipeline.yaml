@@ -1,37 +1,45 @@
-name: "Build & Publish"
-run-name: ${{ gitea.actor }} (rn)
+name: "build(${{ gitea.repository }})"
 on:
   workflow_dispatch:
   workflow_call:
   push:
     branches:
-    - master
+      - master
     paths:
-    - 'appsettings2/**'
-    - '!pyproject.toml'
-    - '!README.md'
-    - '!docs/**'
-    - '!.gitea/workflows/pipeline.yaml'
+      - 'src/**'
+      - 'pyproject.toml'
+      - '!README.md'
+      - '!docs/**'
+      - '.gitea/workflows/pipeline.yaml'
 jobs:
-  publish:
-    name: "Publish Package"
-    runs-on: builder-py313
+  package-and-deploy:
+    name: "Package & Deploy"
+    runs-on: builder-py314
     steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-    - name: "Configure Environment"
-      run: |
-        export SEMVER=$(conventional-semver)
-        echo "REGISTRY_NAMESPACE=wilson0x4d" >> "$GITHUB_ENV"
-        echo "SEMVER=$SEMVER" >> "$GITHUB_ENV"
-        echo "PYPI_REPO=${{ vars.PYPI_REPO }}" >> "$GITHUB_ENV"
-        .scripts/init-venv.sh
-    - name: "Execute Build-Time Tests"
-      run: |
-        cd '${{ gitea.workspace }}'
-        .scripts/run-tests.sh
-    - name: "Publish Packages"
-      run: |
-        cd '${{ gitea.workspace }}'
-        .scripts/publish-packages.sh
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: "Configure"
+        id: configure-build
+        run: |
+          export SEMVER=$(conventional-semver)
+          echo "REGISTRY_NAMESPACE=wilson0x4d" >> "$GITHUB_ENV"
+          echo "SEMVER=$SEMVER" >> "$GITHUB_ENV"
+          echo "PYPI_REPO=${{ vars.PYPI_REPO }}" >> "$GITHUB_ENV"
+          emit-context "success" "SEMVER" "${{ gitea.api_url }}" "${{ gitea.repository }}" "${{ gitea.sha }}" "${{ secrets.GITEA_TOKEN }}" "$SEMVER"
+          .scripts/init-venv
+      - name: "Test"
+        id: run-tests
+        run: |
+          .scripts/run-tests
+          .scripts/make-docs # does not publish, compilation only.
+      - name: "Package"
+        id: build-package
+        run: |
+          .scripts/build-package
+      - name: "Deploy"
+        id: deploy-package
+        run: |
+          .scripts/deploy-package
+          git tag "$SEMVER"
+          git push origin "$SEMVER"
