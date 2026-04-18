@@ -46,3 +46,6 @@ exclude = [
     "tests",
     "tests.*"
 ]
+
+[tool.setuptools.package-data]
+"appsettings2" = ["py.typed"]
