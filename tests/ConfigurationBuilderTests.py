@@ -3,7 +3,8 @@
 
 import appsettings2
 import os
-from punit import *
+import pathlib
+from punit import fact
 
 class ConfigurationBuilderTests:
 
@@ -155,3 +156,15 @@ class ConfigurationBuilderTests:
         assert 3 == configuration.get('some_subobj:some_int')
         assert 3.3 == configuration.get('some_subobj:some_float')
         assert 'rand3' == configuration.get('some_subobj:some_string')
+
+    @fact
+    def getConfigurationSupportsPathlib(self) -> None:
+        posixPath = pathlib.Path('tests') / 'configs' / 'exact'
+        configuration = appsettings2.getConfiguration(posixPath, toml=False, yaml=False)
+        assert configuration is not None
+        assert 1 == configuration.get('some_int')
+        assert 1.1 == configuration.get('some_float')
+        assert 'rand1' == configuration.get('some_string')
+        assert 1 == configuration.get('some_subobj:some_int')
+        assert 1.1 == configuration.get('some_subobj:some_float')
+        assert 'rand1' == configuration.get('some_subobj:some_string')

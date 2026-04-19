@@ -55,7 +55,7 @@ Syntax
 .. py:function:: getConfiguration(baseName, json, toml, yaml, cli, environment, variations)
     :canonical: appsettings2.helpers.getConfiguration
 
-    :param str baseName: The "base name" used to construct filenames for file-based providers. Default: ``"appsettings"``.
+    :param str|pathlib.Path|pathlib.PosixPath baseName: The "base name" used to construct filenames for file-based providers. Default: ``"appsettings"``.
     :param bool json: A flag indicating that :py:class:`~appsettings2.providers.JsonConfigurationProvider` should be used. Default is ``True``.
     :param bool toml: A flag indicating that :py:class:`~appsettings2.providers.TomlConfigurationProvider` should be used. Default is ``True``.
     :param bool yaml: A flag indicating that :py:class:`~appsettings2.providers.YamlConfigurationProvider` should be used. Default is ``True``.
@@ -106,3 +106,16 @@ The provider order is fixed, and follows the parameter order of the function:
 * EnvironmentConfigurationProvider
 
 The overall ordering being config files, then cli, then environment variables is based on conventions typical to cloud and containerized environments. Often Environment Variables are as the final arbiter of what a configuration setting should be. CLI args are often baked into container images or similar, and config files come from source control, making them less-preferred by operators (and conversely more-preferred by developers.)
+
+``pathlib`` Support
+-------
+
+For convenience, ``baseName`` may be a ``pathlib``-generated object, for example:
+
+.. code:: python
+
+    from appsettings2 import getConfiguration
+
+    config = getConfiguration(Path.home() / '.config' / 'app_directory_name' / 'settings_file_name')
+
+
