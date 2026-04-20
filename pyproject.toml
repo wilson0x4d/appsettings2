@@ -24,6 +24,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
+    "coverage",
     "mypy",
     "punit>=1.2.10",
     "twine",
