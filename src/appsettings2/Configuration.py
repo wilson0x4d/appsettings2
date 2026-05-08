@@ -71,7 +71,7 @@ class Configuration:
     def __len__(self) -> int:
         return len(self.__keys)
 
-    def __recursiveBind(self, target:object, source:Configuration|dict) -> Any:
+    def __recursiveBind(self, target:object, source:'Configuration|dict') -> Any:
         if target is None:
             return None
         if hasattr(target, '__class__'):
@@ -212,7 +212,7 @@ class Configuration:
             delattr(self, t[1])
 
     @staticmethod
-    def fromDictionary(source:dict, *, normalize:bool = False, scrubkeys:bool = False) -> Configuration:
+    def fromDictionary(source:dict, *, normalize:bool = False, scrubkeys:bool = False) -> 'Configuration':
         """
         Constructs a :py:class:`~appsettings2.Configuration` instance from the supplied dictionary `source`.
 

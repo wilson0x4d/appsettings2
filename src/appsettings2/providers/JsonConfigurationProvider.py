@@ -6,9 +6,10 @@ from ..Configuration import Configuration
 from ..ConfigurationException import ConfigurationException
 import json as _json
 import os
-from typing import Optional
+from typing import Optional, TypeAlias
 
-type FileDescriptor = int
+
+FileDescriptor: TypeAlias = int
 
 
 class JsonConfigurationProvider(ConfigurationProvider):
@@ -56,3 +57,6 @@ class JsonConfigurationProvider(ConfigurationProvider):
                 self.__populateRecursive(configuration, kvp[0], kvp[1])
             else:
                 configuration.set(f'{kvp[0]}', kvp[1])
+
+
+__all__ = ['JsonConfigurationProvider']

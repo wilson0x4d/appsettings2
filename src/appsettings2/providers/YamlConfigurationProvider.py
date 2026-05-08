@@ -6,10 +6,10 @@ from ..Configuration import Configuration
 from ..ConfigurationException import ConfigurationException
 from io import StringIO
 import os
-from typing import Optional
+from typing import Optional, TypeAlias
 import yaml as _yaml
 
-type FileDescriptor = int
+FileDescriptor: TypeAlias = int
 
 
 class YamlConfigurationProvider(ConfigurationProvider):
@@ -58,3 +58,6 @@ class YamlConfigurationProvider(ConfigurationProvider):
                 self.__populateRecursive(configuration, kvp[0], kvp[1])
             else:
                 configuration.set(f'{kvp[0]}', kvp[1])
+
+
+__all__ = ['YamlConfigurationProvider']

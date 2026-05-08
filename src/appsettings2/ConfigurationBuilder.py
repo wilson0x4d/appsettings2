@@ -4,9 +4,10 @@
 from .Configuration import Configuration
 from .ConfigurationException import ConfigurationException
 from .providers import *
-from typing import Optional
+from typing import Optional, TypeAlias
 
-type FileDescriptor = int
+
+FileDescriptor: TypeAlias = int
 
 
 class ConfigurationBuilder:
@@ -105,3 +106,6 @@ class ConfigurationBuilder:
         for provider in self.__providers:
             provider.populateConfiguration(configuration)
         return configuration
+
+
+__all__ = ['ConfigurationBuilder']

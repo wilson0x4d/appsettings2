@@ -6,9 +6,11 @@ from ..Configuration import Configuration
 from ..ConfigurationException import ConfigurationException
 import os
 import tomllib as _toml
-from typing import Any, Optional
+from typing import Any, Optional, TypeAlias
 
-type FileDescriptor = int
+
+FileDescriptor: TypeAlias = int
+
 
 
 class TomlConfigurationProvider(ConfigurationProvider):
@@ -56,3 +58,6 @@ class TomlConfigurationProvider(ConfigurationProvider):
                 self.__populateRecursive(configuration, kvp[0], kvp[1])
             else:
                 configuration.set(f'{kvp[0]}', kvp[1])
+
+
+__all__ = ['TomlConfigurationProvider']

@@ -26,7 +26,7 @@ dependencies = [
 dev = [
     "coverage",
     "mypy",
-    "punit>=1.2.10",
+    "punit (>=1.4.0)",
     "twine",
     "types-PyYAML"
 ]

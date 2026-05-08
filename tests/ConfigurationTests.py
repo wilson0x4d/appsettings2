@@ -6,10 +6,10 @@ import json
 import os
 from punit import fact, exceptions, collections
 
-from .fakes.FakeConfigObj import FakeConfigObj
-from .fakes.FakeComplexTypes import FakeComplexObject, FakeKeyValuePair
-from .fakes.FakeInheritanceTypes import FakeSubSubClass
-from .fakes.FakePropertyObjects import FakeInitializedNonSettablePropObject, FakeKeyValuePropPair, FakeUninitializedSettablePropObject
+from .fakes.FakeConfigObj import FakeConfigObj # type: ignore
+from .fakes.FakeComplexTypes import FakeComplexObject, FakeKeyValuePair # type: ignore
+from .fakes.FakeInheritanceTypes import FakeSubSubClass # type: ignore
+from .fakes.FakePropertyObjects import FakeInitializedNonSettablePropObject, FakeKeyValuePropPair, FakeUninitializedSettablePropObject# type: ignore
 
 
 class ConfigurationTests:
@@ -111,8 +111,8 @@ class ConfigurationTests:
         # result in the expected hierarchical state.
         config.clear()
         config['test__hierarchy'] = 1
-        assert config['test'] is not None
-        assert config['test']['hierarchy'] is not None
+        assert config['test'] is not None # type: ignore
+        assert config['test']['hierarchy'] is not None # type: ignore
         assert appsettings2.Configuration == type(config['test'])
         assert 1 == len(config['test'])
         assert 1 == config['test']['hierarchy']
