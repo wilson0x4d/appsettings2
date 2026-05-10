@@ -4,14 +4,14 @@
 
 class FakeSuperClass:
 
-    first:str
+    first: str
 
 
 class FakeSubClass(FakeSuperClass):
 
-    second:str
+    second: str
 
 
 class FakeSubSubClass(FakeSubClass):
 
-    third:str
+    third: str

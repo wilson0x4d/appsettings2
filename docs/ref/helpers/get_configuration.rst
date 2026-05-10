@@ -1,13 +1,13 @@
-getConfiguration
-================
+get_configuration
+=================
 
-The ``getConfiguration`` function simplifies loading of configuration settings, example:
+The ``get_configuration`` function simplifies loading of configuration settings, example:
 
 .. code:: python
 
-    from appsettings2 import getConfiguration
+    from appsettings2 import get_configuration
 
-    config = getConfiguration()
+    config = get_configuration()
 
 This is roughly equivalent to:
 
@@ -16,35 +16,35 @@ This is roughly equivalent to:
     import appsettings2
 
     config = appsettings2.ConfigurationBuilder()\
-        .addJson('appsettings.json', required=False)\
-        .addJson('appsettings.prod.json', required=False)\
-        .addJson('appsettings.production.json', required=False)\
-        .addJson('appsettings.stage.json', required=False)\
-        .addJson('appsettings.staging.json', required=False)\
-        .addJson('appsettings.qa.json', required=False)\
-        .addJson('appsettings.dev.json', required=False)\
-        .addJson('appsettings.developer.json', required=False)\
-        .addJson('appsettings.local.json', required=False)\
-        .addToml('appsettings.json', required=False)\
-        .addToml('appsettings.prod.json', required=False)\
-        .addToml('appsettings.production.json', required=False)\
-        .addToml('appsettings.stage.json', required=False)\
-        .addToml('appsettings.staging.json', required=False)\
-        .addToml('appsettings.qa.json', required=False)\
-        .addToml('appsettings.dev.json', required=False)\
-        .addToml('appsettings.developer.json', required=False)\
-        .addToml('appsettings.local.json', required=False)\
-        .addYaml('appsettings.json', required=False)\
-        .addYaml('appsettings.prod.json', required=False)\
-        .addYaml('appsettings.production.json', required=False)\
-        .addYaml('appsettings.stage.json', required=False)\
-        .addYaml('appsettings.staging.json', required=False)\
-        .addYaml('appsettings.qa.json', required=False)\
-        .addYaml('appsettings.dev.json', required=False)\
-        .addYaml('appsettings.developer.json', required=False)\
-        .addYaml('appsettings.local.json', required=False)\
-        .addCommandLine()\
-        .addEnvironment()\
+        .add_json('appsettings.json', required=False)\
+        .add_json('appsettings.prod.json', required=False)\
+        .add_json('appsettings.production.json', required=False)\
+        .add_json('appsettings.stage.json', required=False)\
+        .add_json('appsettings.staging.json', required=False)\
+        .add_json('appsettings.qa.json', required=False)\
+        .add_json('appsettings.dev.json', required=False)\
+        .add_json('appsettings.developer.json', required=False)\
+        .add_json('appsettings.local.json', required=False)\
+        .add_toml('appsettings.json', required=False)\
+        .add_toml('appsettings.prod.json', required=False)\
+        .add_toml('appsettings.production.json', required=False)\
+        .add_toml('appsettings.stage.json', required=False)\
+        .add_toml('appsettings.staging.json', required=False)\
+        .add_toml('appsettings.qa.json', required=False)\
+        .add_toml('appsettings.dev.json', required=False)\
+        .add_toml('appsettings.developer.json', required=False)\
+        .add_toml('appsettings.local.json', required=False)\
+        .add_yaml('appsettings.json', required=False)\
+        .add_yaml('appsettings.prod.json', required=False)\
+        .add_yaml('appsettings.production.json', required=False)\
+        .add_yaml('appsettings.stage.json', required=False)\
+        .add_yaml('appsettings.staging.json', required=False)\
+        .add_yaml('appsettings.qa.json', required=False)\
+        .add_yaml('appsettings.dev.json', required=False)\
+        .add_yaml('appsettings.developer.json', required=False)\
+        .add_yaml('appsettings.local.json', required=False)\
+        .add_command_line()\
+        .add_environment()\
         .build()
 
 You can see this may save quite a bit of typing/repetition if you're working over multiple projects.
@@ -52,8 +52,8 @@ You can see this may save quite a bit of typing/repetition if you're working ove
 Syntax
 ------
 
-.. py:function:: getConfiguration(baseName, json, toml, yaml, cli, environment, variations)
-    :canonical: appsettings2.helpers.getConfiguration
+.. py:function:: get_configuration(baseName, json, toml, yaml, cli, environment, variations)
+    :canonical: appsettings2.helpers.get_configuration
 
     :param str|pathlib.Path|pathlib.PosixPath baseName: The "base name" used to construct filenames for file-based providers. Default: ``"appsettings"``.
     :param bool json: A flag indicating that :py:class:`~appsettings2.providers.JsonConfigurationProvider` should be used. Default is ``True``.
@@ -114,8 +114,8 @@ For convenience, ``baseName`` may be a ``pathlib``-generated object, for example
 
 .. code:: python
 
-    from appsettings2 import getConfiguration
+    from appsettings2 import get_configuration
 
-    config = getConfiguration(Path.home() / '.config' / 'app_directory_name' / 'settings_file_name')
+    config = get_configuration(Path.home() / '.config' / 'app_directory_name' / 'settings_file_name')
 
 

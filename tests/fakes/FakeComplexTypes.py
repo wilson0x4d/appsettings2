@@ -3,9 +3,11 @@
 
 
 class FakeKeyValuePair:
-    key:str
-    value:str
+
+    key: str
+    value: str
 
 
 class FakeComplexObject:
-    keyValuePairs:list[FakeKeyValuePair]
+
+    key_value_pairs: list[FakeKeyValuePair]

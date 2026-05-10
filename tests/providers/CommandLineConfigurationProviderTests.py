@@ -8,7 +8,7 @@ from punit import fact
 class CommandLineConfigurationProviderTests:
 
     @fact
-    def test_BasicVerification1(self):
+    def test_BasicVerification1(self) -> None:
         provider = appsettings2.providers.CommandLineConfigurationProvider([
             '--switch1',
             'TEST_ARGV=1',
@@ -25,7 +25,7 @@ class CommandLineConfigurationProviderTests:
         assert True == (configuration.get('switch2'))
 
     @fact
-    def test_BasicVerification2(self):
+    def test_BasicVerification2(self) -> None:
         provider = appsettings2.providers.CommandLineConfigurationProvider([
             'TEST_ARGV=1',
             'some_subobj__TEST_ARGV=2',
@@ -34,7 +34,7 @@ class CommandLineConfigurationProviderTests:
             '--switch2'
         ])
         configuration = appsettings2.Configuration()
-        provider.populateConfiguration(configuration)
+        provider.populate_configuration(configuration)
         assert '1' == configuration.get('TEST_ARGV')
         assert '2' == configuration.get('some_subobj:TEST_ARGV')
         assert True == (configuration.get('switch1'))

@@ -6,55 +6,59 @@ import json
 import os
 from punit import fact, exceptions, collections
 
-from .fakes.FakeConfigObj import FakeConfigObj # type: ignore
-from .fakes.FakeComplexTypes import FakeComplexObject, FakeKeyValuePair # type: ignore
-from .fakes.FakeInheritanceTypes import FakeSubSubClass # type: ignore
-from .fakes.FakePropertyObjects import FakeInitializedNonSettablePropObject, FakeKeyValuePropPair, FakeUninitializedSettablePropObject# type: ignore
+from .fakes.FakeConfigObj import FakeConfigObj  # type: ignore
+from .fakes.FakeComplexTypes import FakeComplexObject, FakeKeyValuePair  # type: ignore
+from .fakes.FakeInheritanceTypes import FakeSubSubClass  # type: ignore
+from .fakes.FakePropertyObjects import (  # type: ignore
+    FakeInitializedNonSettablePropObject,
+    FakeKeyValuePropPair,
+    FakeUninitializedSettablePropObject
+)
 
 
 class ConfigurationTests:
 
     @fact
-    def test_CanWriteDunderKeys(self) -> None:
+    def can_write_dunder_keys(self) -> None:
         config = appsettings2.Configuration()
         config.set('THIS__IS_A__TEST', 5)
         assert 5 == config.THIS.IS_A.TEST
 
     @fact
-    def test_CanReadDunderKeys(self) -> None:
+    def can_read_dunder_keys(self) -> None:
         config = appsettings2.Configuration()
         config.set('THIS__IS_A__TEST', 5)
         v = config.get('THIS__IS_A__TEST')
         assert 5 == v
 
     @fact
-    def test_CanWriteColonKeys(self) -> None:
+    def can_write_colon_keys(self) -> None:
         config = appsettings2.Configuration()
         config.set('THIS:IS_A:TEST', 5)
         assert 5 == config.THIS.IS_A.TEST
 
     @fact
-    def test_CanReadColonKeys(self) -> None:
+    def can_read_colon_keys(self) -> None:
         config = appsettings2.Configuration()
         config.set('THIS:IS_A:TEST', 5)
         v = config.get('THIS:IS_A:TEST')
         assert 5 == v
 
     @fact
-    def test_CanWritePeriodKeys(self) -> None:
+    def can_write_period_keys(self) -> None:
         config = appsettings2.Configuration()
         config.set('THIS.IS_A.TEST', 5)
         assert 5 == config.THIS_IS_A_TEST
 
     @fact
-    def test_CanReadPeriodKeys(self) -> None:
+    def can_read_period_keys(self) -> None:
         config = appsettings2.Configuration()
         config.set('THIS.IS_A.TEST', 5)
         v = config.get('THIS.IS_A.TEST')
         assert 5 == v
 
     @fact
-    def test_CanReadWriteMixedKeys(self) -> None:
+    def can_write_mixed_keys(self) -> None:
         config = appsettings2.Configuration()
         config.set('THIS:IS_A.TEST', 5)
         v = config.get('THIS__IS_A.TEST')
@@ -62,7 +66,7 @@ class ConfigurationTests:
         assert 5 == config.THIS.IS_A_TEST
 
     @fact
-    def test_IsDictionaryLike(self) -> None:
+    def verify_dict_like(self) -> None:
         config = appsettings2.Configuration()
         exceptions.raises[KeyError](lambda: config['test'])
         # confirm basic key-value semantics
@@ -111,14 +115,14 @@ class ConfigurationTests:
         # result in the expected hierarchical state.
         config.clear()
         config['test__hierarchy'] = 1
-        assert config['test'] is not None # type: ignore
-        assert config['test']['hierarchy'] is not None # type: ignore
-        assert appsettings2.Configuration == type(config['test'])
+        assert config['test'] is not None  # type: ignore
+        assert config['test']['hierarchy'] is not None  # type: ignore
+        assert appsettings2.Configuration is type(config['test'])
         assert 1 == len(config['test'])
         assert 1 == config['test']['hierarchy']
 
     @fact
-    def test_ToDictionary_BasicVerification(self) -> None:
+    def to_dict_bvt(self) -> None:
         config = appsettings2.Configuration()
         config.set('THIS:IS_A__TEST1', 1)
         config.set('THIS__IS_A:TEST2', 2.2)
@@ -128,15 +132,15 @@ class ConfigurationTests:
             [
                 {
                     'key': 1,
-                    'value': [ 1,2,3 ]
+                    'value': [1, 2, 3]
                 },
                 {
                     'key': 2,
-                    'value': [ 2,3,4 ]
+                    'value': [2, 3, 4]
                 },
                 {
                     'key': 3,
-                    'value': [ 3,4,5 ]
+                    'value': [3, 4, 5]
                 },
             ]
         )
@@ -153,11 +157,10 @@ class ConfigurationTests:
             assert i == e.key
             assert isinstance(e.value, list)
             for k in range(3):
-                assert i+k == e.value[k]
-
+                assert i + k == e.value[k]
 
     @fact
-    def test_FromDictionary_BasicVerification(self) -> None:
+    def from_dict_bvt(self) -> None:
         expected = {
             'this': {
                 'is_a': {
@@ -169,15 +172,15 @@ class ConfigurationTests:
             'deep_list': [
                 {
                     'key': 1,
-                    'value': [ 1,2,3 ]
+                    'value': [1, 2, 3]
                 },
                 {
                     'key': 2,
-                    'value': [ 2,3,4 ]
+                    'value': [2, 3, 4]
                 },
                 {
                     'key': 3,
-                    'value': [ 3,4,5 ]
+                    'value': [3, 4, 5]
                 },
             ]
         }
@@ -196,28 +199,28 @@ class ConfigurationTests:
             assert i == e.key
             assert isinstance(e.value, list)
             for k in range(3):
-                assert i+k == e.value[k]
+                assert i + k == e.value[k]
         actual = config.toDictionary()
         assert collections.areSame(expected, actual)
 
-    def __getSubsetConfiguration(self) -> appsettings2.Configuration:
+    def __get_sub_configuration(self) -> appsettings2.Configuration:
         # "subset configurations" are a set of
         # configurations which each configure a subset
         # of the entire config, and are meant to be
-        # used to do a broad verification that 
+        # used to do a broad verification that
         # all providers work as intended when added
         # to the builder.
         builder = appsettings2.ConfigurationBuilder(normalize=True)
-        builder.addProvider(appsettings2.providers.CommandLineConfigurationProvider([
+        builder.add_provider(appsettings2.providers.CommandLineConfigurationProvider([
             'TEST_ARGV=5',
             'some_subobj__TEST_ARGV=6'
         ]))
         os.environ['env_test'] = '7'
         os.environ['some_subobj__env_test'] = '8'
-        builder.addProvider(appsettings2.providers.EnvironmentConfigurationProvider())
-        builder.addProvider(appsettings2.providers.JsonConfigurationProvider('tests/configs/subset.json'))
-        builder.addProvider(appsettings2.providers.TomlConfigurationProvider('tests/configs/subset.toml'))
-        builder.addProvider(appsettings2.providers.YamlConfigurationProvider('tests/configs/subset.yaml'))
+        builder.add_provider(appsettings2.providers.EnvironmentConfigurationProvider())
+        builder.add_provider(appsettings2.providers.JsonConfigurationProvider('tests/configs/subset.json'))
+        builder.add_provider(appsettings2.providers.TomlConfigurationProvider('tests/configs/subset.toml'))
+        builder.add_provider(appsettings2.providers.YamlConfigurationProvider('tests/configs/subset.yaml'))
         configuration = builder.build()
         assert configuration is not None
         assert 1 == configuration.get('some_float')
@@ -233,16 +236,16 @@ class ConfigurationTests:
         return configuration
 
     @fact
-    def test_WithSubsets_ToDictionary_MustSerialize(self) -> None:
-        configuration = self.__getSubsetConfiguration()
+    def when_subconfig_then_to_dict_still_works(self) -> None:
+        configuration = self.__get_sub_configuration()
         d = configuration.toDictionary()
         assert d is not None
         s = json.dumps(d)
         assert s is not None
 
     @fact
-    def test_WithSubsets_MustBind(self) -> None:
-        configuration = self.__getSubsetConfiguration()
+    def when_subconfig_then_bind_still_works(self) -> None:
+        configuration = self.__get_sub_configuration()
         obj = FakeConfigObj()
         o = configuration.bind(obj)
         assert o == obj
@@ -256,9 +259,9 @@ class ConfigurationTests:
         assert 6, obj.some_subobj.test_argv
         assert 7, obj.env_test
         assert 8, obj.some_subobj.env_test
- 
+
     @fact
-    def test_AttributesPreserveCase_ProvidesCaseInsensitiveAccess(self) -> None:
+    def pyobj_attributes_are_case_sensitive_configuration_keys_are_case_insensitive(self) -> None:
         configuration = appsettings2.Configuration()
         # confirm that keys are case-insensitive
         configuration.set('UPPER_CASE_KEY', 1)
@@ -299,7 +302,7 @@ class ConfigurationTests:
         assert 3 == configuration.get('MixeD_cASe_KeY')
 
     @fact
-    def test_NormalizeOptionForcesUpperCase_StillProvidesCaseInsensitiveAccess(self) -> None:
+    def case_insensitive_keys_even_though_normalize_uppercase(self) -> None:
         configuration = appsettings2.Configuration(normalize=True)
         # confirm that keys are case-insensitive
         configuration.set('UPPER_CASE_KEY', 1)
@@ -340,7 +343,7 @@ class ConfigurationTests:
         assert 3 == configuration.get('MixeD_cASe_KeY')
 
     @fact
-    def test_ScrubkeysOptionGeneratesLexerFriendlyAttributes(self) -> None:
+    def when_scrubkeys_then_lexer_friendly_attributes(self) -> None:
         configuration = appsettings2.Configuration(scrubkeys=True)
         configuration.set('basic#verification', 1)
         # confirm keys are accessible under their original name
@@ -354,11 +357,11 @@ class ConfigurationTests:
         assert 2 == configuration.get('basic#verification')
 
     @fact
-    def test_SupportsTypedLists(self) -> None:
+    def typed_list_bvt(self) -> None:
         provider = appsettings2.providers.JsonConfigurationProvider(
             json="""
             {
-                "keyValuePairs": [
+                "key_value_pairs": [
                     {
                         "key": "key1",
                         "value": "value1"
@@ -371,83 +374,85 @@ class ConfigurationTests:
             }""")
         configuration = appsettings2.Configuration()
         provider.populateConfiguration(configuration)
-        complexObject:FakeComplexObject = FakeComplexObject()
-        configuration.bind(complexObject)
-        assert complexObject is not None
-        assert complexObject.keyValuePairs is not None
-        assert 2 == len(complexObject.keyValuePairs)
+        complex_object = FakeComplexObject()
+        configuration.bind(complex_object)
+        assert complex_object is not None
+        assert complex_object.key_value_pairs is not None
+        assert 2 == len(complex_object.key_value_pairs)
         i = 0
-        for e in complexObject.keyValuePairs:
+        for e in complex_object.key_value_pairs:
             i += 1
             assert isinstance(e, FakeKeyValuePair)
             assert f'key{i}' == e.key
             assert f'value{i}' == e.value
 
     @fact
-    def test_SupportsUninitializedSettablePropertyBinding(self) -> None:
+    def uninitialized_settable_property_binding(self) -> None:
         config = appsettings2.Configuration()
         config.set(
-            'keyValuePairs',
+            'key_value_pairs',
             [
                 {
                     'key': 1,
-                    'value': [ 1,2,3 ]
+                    'value': [1, 2, 3]
                 },
                 {
                     'key': 2,
-                    'value': [ 2,3,4 ]
+                    'value': [2, 3, 4]
                 },
                 {
                     'key': 3,
-                    'value': [ 3,4,5 ]
+                    'value': [3, 4, 5]
                 },
             ]
         )
-        obj:FakeUninitializedSettablePropObject = config.bind(FakeUninitializedSettablePropObject())
-        assert obj.keyValuePairs is not None
-        assert 3 == len(obj.keyValuePairs)
+        obj = config.bind(
+            FakeUninitializedSettablePropObject()
+        )
+        assert obj.key_value_pairs is not None
+        assert 3 == len(obj.key_value_pairs)
         i = 0
-        for e in obj.keyValuePairs:
+        for e in obj.key_value_pairs:
             i = i + 1
             assert isinstance(e, FakeKeyValuePropPair)
             assert str(i) == e.key
             for k in range(3):
-                assert i+k == e.value[k]
+                assert i + k == e.value[k]
 
     @fact
-    def test_MergesInitializedNonSettablePropertyBindingWhenSourceValueIsList(self) -> None:
+    def when_source_value_is_list_then_merges_non_settable_binding(self) -> None:
         config = appsettings2.Configuration()
         config.set(
-            'keyValuePairs',
+            'key_value_pairs',
             [
                 {
                     'key': 1,
-                    'value': [ 1,2,3 ]
+                    'value': [1, 2, 3]
                 },
                 {
                     'key': 2,
-                    'value': [ 2,3,4 ]
+                    'value': [2, 3, 4]
                 },
                 {
                     'key': 3,
-                    'value': [ 3,4,5 ]
+                    'value': [3, 4, 5]
                 },
             ]
         )
         fake = FakeInitializedNonSettablePropObject()
-        obj:FakeInitializedNonSettablePropObject = config.bind(fake)
-        assert obj.keyValuePairs is not None
-        assert 3 == len(obj.keyValuePairs)
+        obj: FakeInitializedNonSettablePropObject = config.bind(fake)
+        assert obj.key_value_pairs is not None
+        assert 3 == len(obj.key_value_pairs)
         i = 0
-        for e in obj.keyValuePairs:
+        for e in obj.key_value_pairs:
             i = i + 1
             assert isinstance(e, FakeKeyValuePropPair)
             assert str(i) == e.key
             for k in range(3):
-                assert i+k == e.value[k]
+                assert i + k == e.value[k]
 
     @fact
-    def test_FailsInitializedNonSettablePropertyBindingWhenSourceValueIsNonNull(self) -> None:
+    def when_source_value_non_null_then_fails_non_settable_binding(self) -> None:
         config = appsettings2.Configuration()
         config.set(
             'validity',
@@ -457,20 +462,20 @@ class ConfigurationTests:
         exceptions.raises[Exception](lambda: config.bind(fake))
 
     @fact
-    def test_SkipsInitializedNonSettablePropertyBindingWithNullSourceValue(self) -> None:
+    def when_source_value_is_none_then_skips_non_settable_binding(self) -> None:
         # verifies that nonsettable, pre-initialized properties do not error when the binding source contains a null value
         config = appsettings2.Configuration()
         config.set(
-            'keyValuePairs',
+            'key_value_pairs',
             None
         )
         fake = FakeInitializedNonSettablePropObject()
-        obj:FakeInitializedNonSettablePropObject = config.bind(fake)
-        assert obj.keyValuePairs is not None
-        assert 0 == len(obj.keyValuePairs)
+        obj: FakeInitializedNonSettablePropObject = config.bind(fake)
+        assert obj.key_value_pairs is not None
+        assert 0 == len(obj.key_value_pairs)
 
     @fact
-    def test_BindInheritedAttributes(self) -> None:
+    def inherited_attributes_must_bind(self) -> None:
         config = appsettings2.Configuration()
         config.set('first', 1)
         config.set('second', 2)
@@ -484,7 +489,8 @@ class ConfigurationTests:
         assert '1' == obj.first
 
     @fact
-    def test_Bind_WhenKeyIsNone_MustSucceed(self) -> None:
+    def when_bind_key_is_invalid_bind_must_succeed(self) -> None:
+        # this is a backward-compatibility behavior, and thus this is a regression test.
         config = appsettings2.Configuration()
         expected = FakeComplexObject()
         actual = config.bind(expected, 'does_not_exist')

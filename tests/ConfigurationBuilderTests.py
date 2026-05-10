@@ -6,16 +6,17 @@ import os
 import pathlib
 from punit import fact
 
+
 class ConfigurationBuilderTests:
 
     @fact
-    def test_WithoutProviders_MustSucceed(self):
+    def when_no_args_then_build_default(self) -> None:
         builder = appsettings2.ConfigurationBuilder()
         configuration = builder.build()
         assert configuration is not None
 
     @fact
-    def test_RequestForNonExistentKey_MustSucceed(self):
+    def when_key_not_found_then_return_default(self) -> None:
         builder = appsettings2.ConfigurationBuilder()
         configuration = builder.build()
         assert configuration is not None
@@ -23,51 +24,57 @@ class ConfigurationBuilderTests:
         assert v is None
 
     @fact
-    def test_WithUninitalizedProviders_MustSucceed(self):
+    def when_provders_uninitialized_then_build_default(self) -> None:
         builder = appsettings2.ConfigurationBuilder()
-        builder.addProvider(appsettings2.providers.CommandLineConfigurationProvider([]))
-        builder.addProvider(appsettings2.providers.EnvironmentConfigurationProvider())
-        builder.addProvider(appsettings2.providers.JsonConfigurationProvider())
-        builder.addProvider(appsettings2.providers.TomlConfigurationProvider())
-        builder.addProvider(appsettings2.providers.YamlConfigurationProvider())
+        builder.add_provider(
+            appsettings2.providers.CommandLineConfigurationProvider([]))
+        builder.add_provider(
+            appsettings2.providers.EnvironmentConfigurationProvider())
+        builder.add_provider(appsettings2.providers.JsonConfigurationProvider())
+        builder.add_provider(appsettings2.providers.TomlConfigurationProvider())
+        builder.add_provider(appsettings2.providers.YamlConfigurationProvider())
         configuration = builder.build()
         assert configuration is not None
 
     @fact
-    def test_WithSubsetConfigurations_MustLoad(self):
+    def when_subconfig_then_populate(self) -> None:
         builder = appsettings2.ConfigurationBuilder()
-        builder.addProvider(appsettings2.providers.CommandLineConfigurationProvider([
+        builder.add_provider(appsettings2.providers.CommandLineConfigurationProvider([
             'TEST_ARGV=5',
             'some_subobj__TEST_ARGV=6'
         ]))
         os.environ['env_test'] = '7'
         os.environ['some_obj__env_test'] = '8'
-        builder.addProvider(appsettings2.providers.EnvironmentConfigurationProvider())
-        builder.addProvider(appsettings2.providers.JsonConfigurationProvider('tests/configs/subset.json'))
-        builder.addProvider(appsettings2.providers.TomlConfigurationProvider('tests/configs/subset.toml'))
-        builder.addProvider(appsettings2.providers.YamlConfigurationProvider('tests/configs/subset.yaml'))
+        builder.add_provider(
+            appsettings2.providers.EnvironmentConfigurationProvider())
+        builder.add_provider(appsettings2.providers.JsonConfigurationProvider(
+            'tests/configs/subset.json'))
+        builder.add_provider(appsettings2.providers.TomlConfigurationProvider(
+            'tests/configs/subset.toml'))
+        builder.add_provider(appsettings2.providers.YamlConfigurationProvider(
+            'tests/configs/subset.yaml'))
         configuration = builder.build()
         assert configuration is not None
 
     @fact
-    def test_WithSubsetConfigurations_MustMatch(self):
+    def when_subconfig_then_match(self) -> None:
         # "subset configurations" are a set of
         # configurations which each configure a subset
         # of the entire config, and are meant to be
-        # used to do a broad verification that 
+        # used to do a broad verification that
         # all providers work as intended when added
         # to the builder.
         builder = appsettings2.ConfigurationBuilder()
-        builder.addCommandLine([
+        builder.add_command_line([
             'TEST_ARGV=5',
             'some_subobj__TEST_ARGV=6'
         ])
         os.environ['env_test'] = '7'
         os.environ['some_obj__env_test'] = '8'
-        builder.addEnvironment()
-        builder.addJson('tests/configs/subset.json')
-        builder.addToml('tests/configs/subset.toml')
-        builder.addYaml('tests/configs/subset.yaml')
+        builder.add_environment()
+        builder.add_json('tests/configs/subset.json')
+        builder.add_toml('tests/configs/subset.toml')
+        builder.add_yaml('tests/configs/subset.yaml')
         configuration = builder.build()
         assert configuration is not None
         assert 1 == configuration.get('some_float')
@@ -82,7 +89,7 @@ class ConfigurationBuilderTests:
         assert '8' == configuration.get('some_obj__env_test')
 
     @fact
-    def test_WithExactConfigurations_LastInWins(self):
+    def when_same_configuration_then_last_in_wins(self) -> None:
         # ConfigurationProvider order matters
         #
         # the last provider in the list of providers
@@ -94,15 +101,15 @@ class ConfigurationBuilderTests:
         # this is a combined function of ConfigurationBuilder
         # and Configuration classes.
         builder = appsettings2.ConfigurationBuilder()
-        builder.addCommandLine([
+        builder.add_command_line([
             'TEST_ARGV=5',
             'some_subobj__TEST_ARGV=6'
         ])
         os.environ['env_test'] = '7'
         os.environ['some_obj__env_test'] = '8'
         builder\
-            .addEnvironment()\
-            .addJson('tests/configs/exact.json')
+            .add_environment()\
+            .add_json('tests/configs/exact.json')
         configuration = builder.build()
         assert configuration is not None
         assert 1 == configuration.get('some_int')
@@ -111,7 +118,8 @@ class ConfigurationBuilderTests:
         assert 1 == configuration.get('some_subobj:some_int')
         assert 1.1 == configuration.get('some_subobj:some_float')
         assert 'rand1' == configuration.get('some_subobj:some_string')
-        builder.addProvider(appsettings2.providers.TomlConfigurationProvider('tests/configs/exact.toml'))
+        builder.add_provider(appsettings2.providers.TomlConfigurationProvider(
+            'tests/configs/exact.toml'))
         configuration = builder.build()
         assert configuration is not None
         assert 2 == configuration.get('some_int')
@@ -120,7 +128,8 @@ class ConfigurationBuilderTests:
         assert 2 == configuration.get('some_subobj:some_int')
         assert 2.2 == configuration.get('some_subobj:some_float')
         assert 'rand2' == configuration.get('some_subobj:some_string')
-        builder.addProvider(appsettings2.providers.YamlConfigurationProvider('tests/configs/exact.yaml'))
+        builder.add_provider(appsettings2.providers.YamlConfigurationProvider(
+            'tests/configs/exact.yaml'))
         configuration = builder.build()
         assert configuration is not None
         assert 3 == configuration.get('some_int')
@@ -131,8 +140,9 @@ class ConfigurationBuilderTests:
         assert 'rand3' == configuration.get('some_subobj:some_string')
 
     @fact
-    def getConfigurationBasicVerification(self) -> None:
-        configuration = appsettings2.getConfiguration('tests/configs/exact', toml=False, yaml=False)
+    def get_configuration_bvt(self) -> None:
+        configuration = appsettings2.get_configuration(
+            'tests/configs/exact', toml=False, yaml=False)
         assert configuration is not None
         assert 1 == configuration.get('some_int')
         assert 1.1 == configuration.get('some_float')
@@ -140,7 +150,8 @@ class ConfigurationBuilderTests:
         assert 1 == configuration.get('some_subobj:some_int')
         assert 1.1 == configuration.get('some_subobj:some_float')
         assert 'rand1' == configuration.get('some_subobj:some_string')
-        configuration = appsettings2.getConfiguration('tests/configs/exact', json=False, yaml=False)
+        configuration = appsettings2.get_configuration(
+            'tests/configs/exact', json=False, yaml=False)
         assert configuration is not None
         assert 2 == configuration.get('some_int')
         assert 2.2 == configuration.get('some_float')
@@ -148,7 +159,8 @@ class ConfigurationBuilderTests:
         assert 2 == configuration.get('some_subobj:some_int')
         assert 2.2 == configuration.get('some_subobj:some_float')
         assert 'rand2' == configuration.get('some_subobj:some_string')
-        configuration = appsettings2.getConfiguration('tests/configs/exact', json=False, toml=False)
+        configuration = appsettings2.get_configuration(
+            'tests/configs/exact', json=False, toml=False)
         assert configuration is not None
         assert 3 == configuration.get('some_int')
         assert 3.3 == configuration.get('some_float')
@@ -158,9 +170,9 @@ class ConfigurationBuilderTests:
         assert 'rand3' == configuration.get('some_subobj:some_string')
 
     @fact
-    def getConfigurationSupportsPathlib(self) -> None:
-        posixPath = pathlib.Path('tests') / 'configs' / 'exact'
-        configuration = appsettings2.getConfiguration(posixPath, toml=False, yaml=False)
+    def get_configuration_supports_pathlib(self) -> None:
+        posix_path = pathlib.Path('tests') / 'configs' / 'exact'
+        configuration = appsettings2.get_configuration(posix_path, toml=False, yaml=False)
         assert configuration is not None
         assert 1 == configuration.get('some_int')
         assert 1.1 == configuration.get('some_float')

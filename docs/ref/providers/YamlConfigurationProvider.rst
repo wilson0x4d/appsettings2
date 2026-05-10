@@ -19,7 +19,7 @@ When loaded using :py:class:`~appsettings2.providers.YamlConfigurationProvider` 
     from appsettings2.providers import *
 
     config = ConfigurationBuilder()\
-        .addProvider(YamlConfigurationProvider('example.yaml'))\
+        .add_provider(YamlConfigurationProvider('example.yaml'))\
         .build()
 
     print(config['LOGGING_DEFAULT']) # outputs: "Debug"

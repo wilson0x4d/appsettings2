@@ -9,19 +9,19 @@ from .ConfigurationProvider import ConfigurationProvider
 
 
 class CommandLineConfigurationProvider(ConfigurationProvider):
-    """
-    Populates configuration data from Command-Line arguments.
-    """
+    """A ``ConfigurationProvider`` that populates configuration data from Command-Line arguments."""
 
-    __argv:list[str]
+    __argv: list[str]
 
-    def __init__(self, argv:Optional[list[str]] = None):
+    def __init__(self, argv: Optional[list[str]] = None) -> None:
         """
-        :param argv: Optional arg list used in lieu of `sys.argv`, defaults to None.
+        Initialize ``CommandLineConfigurationProvider`` instance.
+
+        :param argv: Optional arg list used in lieu of `sys.argv`, defaults to ``sys.argv``.
         """
         self.__argv = argv if argv is not None else sys.argv
 
-    def populateConfiguration(self, configuration:Configuration):
+    def populate_configuration(self, configuration: Configuration) -> None:  # noqa: D102
         if self.__argv is None:
             return
         pending_key = None
@@ -38,7 +38,7 @@ class CommandLineConfigurationProvider(ConfigurationProvider):
                     pending_key = None
             if eqidx > 0:
                 k = safe_arg[0:eqidx]
-                v = safe_arg[eqidx+1:len(safe_arg)]
+                v = safe_arg[eqidx + 1:len(safe_arg)]
                 configuration.set(k, v)
             else:
                 pending_key = safe_arg.lstrip('=')

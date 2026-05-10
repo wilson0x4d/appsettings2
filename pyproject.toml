@@ -22,7 +22,10 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "coverage",
+    "flake8",
+    "flake8-pyproject",
     "mypy",
+    "pep8-naming",
     "punit (>=1.4.0)",
     "twine",
     "types-PyYAML"
@@ -47,3 +50,10 @@ exclude = [
 
 [tool.setuptools.package-data]
 "appsettings2" = ["py.typed"]
+
+[tool.flake8]
+max-line-length = 120
+ignore = ["D100","E501"]
+per-file-ignore = [
+    "tests/*.py:D012",
+]

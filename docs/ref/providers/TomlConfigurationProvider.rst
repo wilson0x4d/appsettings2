@@ -19,7 +19,7 @@ When loaded using :py:class:`~appsettings2.providers.TomlConfigurationProvider` 
     from appsettings2.providers import *
 
     config = ConfigurationBuilder()\
-        .addProvider(TomlConfigurationProvider('example.toml'))\
+        .add_provider(TomlConfigurationProvider('example.toml'))\
         .build()
 
     print(config['LOGGING_DEFAULT']) # outputs: "Debug"

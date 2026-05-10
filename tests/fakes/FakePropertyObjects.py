@@ -4,49 +4,49 @@
 
 class FakeKeyValuePropPair:
 
-    __key:str
-    __value:list
+    __key: str
+    __value: list
 
     @property
     def key(self) -> str:
         return self.__key
-    
+
     @key.setter
-    def key(self, value:str) -> None:
+    def key(self, value: str) -> None:
         self.__key = value
-    
+
     @property
     def value(self) -> list[int]:
         return self.__value
 
     @value.setter
-    def value(self, value:list[int]) -> None:
+    def value(self, value: list[int]) -> None:
         self.__value = value
 
 
 class FakeUninitializedSettablePropObject:
 
-    __keyValuePairs:list[FakeKeyValuePropPair]
+    __key_value_pairs: list[FakeKeyValuePropPair]
 
     @property
-    def keyValuePairs(self) -> list[FakeKeyValuePropPair]:
-        return self.__keyValuePairs
+    def key_value_pairs(self) -> list[FakeKeyValuePropPair]:
+        return self.__key_value_pairs
 
-    @keyValuePairs.setter
-    def keyValuePairs(self, value:list[FakeKeyValuePropPair]) -> None:
-        self.__keyValuePairs = value
+    @key_value_pairs.setter
+    def key_value_pairs(self, value: list[FakeKeyValuePropPair]) -> None:
+        self.__key_value_pairs = value
 
 
 class FakeInitializedNonSettablePropObject:
 
-    __keyValuePairs:list[FakeKeyValuePropPair]
+    __key_value_pairs: list[FakeKeyValuePropPair]
 
     def __init__(self) -> None:
-        self.__keyValuePairs = []
+        self.__key_value_pairs = []
 
     @property
-    def keyValuePairs(self) -> list[FakeKeyValuePropPair]:
-        return self.__keyValuePairs
+    def key_value_pairs(self) -> list[FakeKeyValuePropPair]:
+        return self.__key_value_pairs
 
     @property
     def validity(self) -> bool:

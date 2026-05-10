@@ -2,16 +2,19 @@
 # SPDX-License-Identifier: MIT
 
 from ..Configuration import Configuration
-from abc import ABC as abstract, abstractmethod
+from abc import ABC, abstractmethod
+from typing import final
 
-class ConfigurationProvider(abstract):
-    """
-    The abstract base class which all Configuration Providers implement.
-    """
+
+class ConfigurationProvider(ABC):
+    """The abstract base class which all Configuration Providers implement."""
 
     @abstractmethod
-    def populateConfiguration(self, configuration:Configuration) -> None:
-        """
-        Populates the provided :py:class:`~appsettings2.Configuration` object using provider-specific methods.
-        """
-        pass
+    def populate_configuration(self, configuration: Configuration) -> None:
+        """Populate the provided :py:class:`~appsettings2.Configuration` object using provider-specific methods."""
+        ...
+
+    @final
+    def populateConfiguration(self, configuration: Configuration) -> None:  # noqa: N802
+        """⚠️ DEPRECATED: use ``populate_configuration(...)`` instead."""
+        self.populate_configuration(configuration)

@@ -1,10 +1,11 @@
+"""A python library that unifies configuration sources into a `Configuration` object that can be bound to complex types, or accessed directly for configuration data."""
 # SPDX-FileCopyrightText: © 2025 Shaun Wilson
 # SPDX-License-Identifier: MIT
 
 from .Configuration import Configuration
 from .ConfigurationBuilder import ConfigurationBuilder
 from .ConfigurationException import ConfigurationException
-from .helpers import getConfiguration
+from .helpers import get_configuration, getConfiguration
 from . import helpers
 from . import providers
 
@@ -16,7 +17,9 @@ __all__ = [
     'Configuration',
     'ConfigurationBuilder',
     'ConfigurationException',
-    'getConfiguration',
+    'get_configuration',
     'helpers',
-    'providers'
+    'providers',
+    # deprecated since 2.0.0
+    'getConfiguration'
 ]

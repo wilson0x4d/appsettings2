@@ -8,7 +8,7 @@ from punit import fact
 class TomlConfigurationProviderTests:
 
     @fact
-    def test_BasicVerification(self):
+    def test_BasicVerification(self) -> None:
         provider = appsettings2.providers.TomlConfigurationProvider(
             toml="""
 toml_test = "1"

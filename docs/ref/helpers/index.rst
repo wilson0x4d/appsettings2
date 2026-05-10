@@ -5,4 +5,4 @@ Helpers
     :titlesonly:
     :maxdepth: 1
 
-    getConfiguration <getConfiguration>
+    get_configuration <get_configuration>

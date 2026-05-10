@@ -19,9 +19,9 @@ from appsettings2 import *
 from appsettings2.providers import *
 
 config = ConfigurationBuilder()\
-    .addProvider(JsonConfigurationProvider(f'appsettings.json'))\
-    .addProvider(JsonConfigurationProvider(f'appsettings.Development.json', required=False))\
-    .addProvider(EnvironmentConfigurationProvider())\
+    .add_provider(JsonConfigurationProvider(f'appsettings.json'))\
+    .add_provider(JsonConfigurationProvider(f'appsettings.Development.json', required=False))\
+    .add_provider(EnvironmentConfigurationProvider())\
     .build()
 
 print(config)
@@ -90,7 +90,7 @@ class AppSettings:
     MaxBatchSize:int
 
 configuration = ConfigurationBuilder()\
-    .addProvider(JsonConfigurationProvider(json=json))
+    .add_provider(JsonConfigurationProvider(json=json))
     .build()
 
 settings = AppSettings()
@@ -134,7 +134,7 @@ print(d)
 
 ### Custom Provider Development
 
-You can implement custom Configuration Providers by subclassing `ConfigurationProvider` and implementing `populateConfiguration(...)`.
+You can implement custom Configuration Providers by subclassing `ConfigurationProvider` and implementing `populate_configuration(...)`.
 
 For a peek at the simplicity of provider implementation, this is `ConfigurationProvider`:
 
@@ -142,7 +142,7 @@ For a peek at the simplicity of provider implementation, this is `ConfigurationP
 class ConfigurationProvider(abstract):
 
     @abstractmethod
-    def populateConfiguration(self, configuration:Configuration) -> None:
+    def populate_configuration(self, configuration:Configuration) -> None:
         """The ConfigurationProvider will populate the provided Configuration instance."""
         pass
 ```
@@ -156,10 +156,10 @@ There are several helpers available which simplify loading configurations. Consi
 ```python
 import appsettings2
 
-config = appsettings2.getConfiguration()
+config = appsettings2.get_configuration()
 ```
 
-You can read more about `getConfiguration` in [the docs](https://appsettings2.readthedocs.io/en/latest/ref/helpers/getConfiguration.html).
+You can read more about `get_configuration` in [the docs](https://appsettings2.readthedocs.io/en/latest/ref/helpers/get_configuration.html).
 
 ## Contact
 

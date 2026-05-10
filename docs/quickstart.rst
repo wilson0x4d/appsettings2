@@ -22,9 +22,9 @@ Using :py:mod:`~appsettings2` is straightforward:
 .. code:: python
 
    config = ConfigurationBuilder()\
-      .addJson('appsettings.json')\
-      .addJson('appsettings.Development.json', required=False)\
-      .addEnvironment()\
+      .add_json('appsettings.json')\
+      .add_json('appsettings.Development.json', required=False)\
+      .add_environment()\
       .build()
 
 Provider Order
@@ -79,7 +79,7 @@ On the developer workstation, the resulting :py:class:`~appsettings2.Configurati
     print(config.AppSettings.MaxBatchSize) # outputs: 100
 
 
-Additionally, because :py:class:`~appsettings2.providers.EnvironmentConfigurationProvider` is added to the builder last (via :py:meth:`~appsettings2.ConfigurationBuilder.addEnvironment`) it is possible to use Environment variables to overwrite any configuration values which were populated by either of the JSON providers. Consider the following ``bash`` export and associated python code, assume these are set on the developer workstation in addition to the above two configuration files:
+Additionally, because :py:class:`~appsettings2.providers.EnvironmentConfigurationProvider` is added to the builder last (via :py:meth:`~appsettings2.ConfigurationBuilder.add_environment`) it is possible to use Environment variables to overwrite any configuration values which were populated by either of the JSON providers. Consider the following ``bash`` export and associated python code, assume these are set on the developer workstation in addition to the above two configuration files:
 
 .. code:: bash
 

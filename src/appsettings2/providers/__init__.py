@@ -1,3 +1,4 @@
+"""Configuration Providers."""
 # SPDX-FileCopyrightText: © 2025 Shaun Wilson
 # SPDX-License-Identifier: MIT
 

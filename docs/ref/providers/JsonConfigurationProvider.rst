@@ -22,7 +22,7 @@ When loaded using :py:class:`~appsettings2.providers.JsonConfigurationProvider` 
     from appsettings2.providers import *
 
     config = ConfigurationBuilder()\
-        .addProvider(JsonConfigurationProvider('example.json'))\
+        .add_provider(JsonConfigurationProvider('example.json'))\
         .build()
 
     print(config['LOGGING_DEFAULT']) # outputs: "Debug"

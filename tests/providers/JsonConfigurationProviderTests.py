@@ -8,7 +8,7 @@ from punit import fact
 class JsonConfigurationProviderTests:
 
     @fact
-    def test_BasicVerification(self):
+    def basic_verification_test(self) -> None:
         provider = appsettings2.providers.JsonConfigurationProvider(
             json="""
             {

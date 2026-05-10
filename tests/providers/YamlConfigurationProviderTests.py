@@ -8,7 +8,7 @@ from punit import fact
 class YamlConfigurationProviderTests:
 
     @fact
-    def test_BasicVerification(self):
+    def test_BasicVerification(self) -> None:
         provider = appsettings2.providers.YamlConfigurationProvider(
             yaml="""
 yaml_test: "1"

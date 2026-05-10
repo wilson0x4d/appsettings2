@@ -32,8 +32,8 @@ To illustrate, this code unifies JSON and YAML into a single configuration objec
         MaxBatchSize:int
 
     configuration = ConfigurationBuilder()\
-        .addProvider(JsonConfigurationProvider(json=json))
-        .addProvider(YamlConfigurationProvider(yaml=yaml))
+        .add_provider(JsonConfigurationProvider(json=json))
+        .add_provider(YamlConfigurationProvider(yaml=yaml))
         .build()
 
     settings = AppSettings()

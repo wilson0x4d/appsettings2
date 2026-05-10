@@ -4,7 +4,7 @@ Overview
 :py:mod:`appsettings2` unifies configuration sources into a :py:class:`~appsettings2.Configuration` object that can be bound to complex types, or accessed directly for configuration data.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
    Overview <self>
    Quick Start <quickstart>

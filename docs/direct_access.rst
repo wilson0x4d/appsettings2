@@ -18,7 +18,7 @@ When configuration values are populated into a :py:class:`~appsettings2.Configur
 .. code:: python
 
    config = ConfigurationBuilder()\
-        .addProvider(JsonConfigurationProvider(json="""
+        .add_provider(JsonConfigurationProvider(json="""
         {
             "ConnectionStrings": {
                 "SampleDb": "my_cxn_string"
