@@ -8,22 +8,28 @@
 
 import os
 import sys
-PACKAGE_PARENT = '../src'
-SCRIPT_DIR = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__))))
-sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
+PROJECT_ROOT = os.path.abspath(os.path.join('..', 'src'))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+from appsettings2 import __version__
 
 project = 'appsettings2'
-copyright = '2025 Shaun Wilson'
 author = 'Shaun Wilson'
-release = '0.0.0'
+copyright = f'2024 {author}'
+release = f'{__version__}'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',       # nice summary tables
+    'sphinx.ext.intersphinx',
+    'sphinx_autodoc_typehints',     # type-hint rendering
     'sphinx_rtd_theme'
 ]
+
+autosummary_generate = True        # generate stub pages automatically
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
@@ -37,7 +43,6 @@ html_static_path = ['_static']
 html_theme_options = {
     'analytics_anonymize_ip': False,
     'logo_only': False,
-    'display_version': True,
     'prev_next_buttons_location': 'bottom',
     'style_external_links': False,
     'vcs_pageview_mode': '',
