@@ -82,12 +82,12 @@ json = """{
 
 class ConnStrs:
     """An ugly class name to demonstrate the class name does not matter."""
-    SampleDB:str
+    SampleDB: str
 
 class AppSettings:
-    ConnectionStrings:ConnStrs
-    EnableSwagger:bool
-    MaxBatchSize:int
+    ConnectionStrings: ConnStrs
+    EnableSwagger: bool
+    MaxBatchSize: int
 
 configuration = ConfigurationBuilder()\
     .add_provider(JsonConfigurationProvider(json=json))

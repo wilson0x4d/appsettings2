@@ -2,7 +2,6 @@ Reference
 =========
 
 .. toctree::
-    :titlesonly:
     :maxdepth: 1
 
     Configuration <Configuration>

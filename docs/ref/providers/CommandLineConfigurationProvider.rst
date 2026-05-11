@@ -23,9 +23,9 @@ All of the forms in the above example result in a configuration object with the 
         "force": true
     }
 
-.. note:: Be aware that leading dashes have been stripped, and the "switch" argument not in a key-value format has been populated as a boolean ``True`` configuration value.
+.. note:: Be aware that dash/hyphen prefix has been stripped, and the "switch" argument not in a key-value format has been populated as a boolean ``True`` configuration value.
 
-The double-underscore ``__`` convention seen above (and elsewhere in the docs) is a common convention borrowed from other platforms/frameworks. The use of a colon ``:`` in lieu of a double-underscore ``__`` is also borrowed from other platforms/frameworks, although it is much less popular.
+The double-underscore ``__`` convention seen above (and elsewhere in the docs) is a common convention borrowed from cloud platforms and other frameworks.  The use of a colon ``:`` in lieu of a double-underscore ``__`` is also borrowed from other platforms/frameworks, although it is much less popular.
 
 .. note:: This provider was implemented in a way that it does not interfere with libraries such as ``argparse``, and should work as expected with a well-formed command-line interface. An explicit goal of this provider was to not depend on a CLI library at all.
 
