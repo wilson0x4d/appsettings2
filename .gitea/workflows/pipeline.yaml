@@ -6,11 +6,9 @@ on:
     branches:
       - master
     paths:
+      - '.gitea/workflows/pipeline.yaml'
       - 'src/**'
       - 'pyproject.toml'
-      - '!README.md'
-      - '!docs/**'
-      - '.gitea/workflows/pipeline.yaml'
 jobs:
   package-and-deploy:
     name: "Package & Deploy"
@@ -23,10 +21,8 @@ jobs:
         id: configure-build
         run: |
           export SEMVER=$(conventional-semver)
-          echo "REGISTRY_NAMESPACE=wilson0x4d" >> "$GITHUB_ENV"
           echo "SEMVER=$SEMVER" >> "$GITHUB_ENV"
           echo "PYPI_REPO=${{ vars.PYPI_REPO }}" >> "$GITHUB_ENV"
-          emit-context "success" "SEMVER" "${{ gitea.api_url }}" "${{ gitea.repository }}" "${{ gitea.sha }}" "${{ secrets.GITEA_TOKEN }}" "$SEMVER"
           PYTHON_VERSION=3.11 .scripts/init-venv
       - name: "Test"
         id: run-tests
@@ -42,3 +38,4 @@ jobs:
           .scripts/deploy-package
           git tag "$SEMVER"
           git push origin "$SEMVER"
+          emit-context "success" "SEMVER" "${{ gitea.api_url }}" "${{ gitea.repository }}" "${{ gitea.sha }}" "${{ secrets.GITEA_TOKEN }}" "$SEMVER"
