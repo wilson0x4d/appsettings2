@@ -152,18 +152,28 @@ class Configuration:
                     setattr(target, aname, lval)
                 else:
                     if lval is None:
-                        ahint = self.__deunionize(ahint)    
+                        ahint = self.__deunionize(ahint)
                         lval = ahint()
                         setattr(target, aname, lval)
                     self.__recursive_bind(lval, rval)
             elif get_origin(ahint) is list:
                 element_type = ahint.__args__[0]
                 if lval is None:
-                    ahint = self.__deunionize(ahint)    
+                    ahint = self.__deunionize(ahint)
                     lval = ahint()
                     setattr(target, aname, lval)
                 for e in rval:
                     lval.append(
+                        self.__recursive_bind_type(element_type, e)
+                    )
+            elif get_origin(ahint) is set:
+                element_type = ahint.__args__[0]
+                if lval is None:
+                    ahint = self.__deunionize(ahint)
+                    lval = ahint()
+                    setattr(target, aname, lval)
+                for e in rval:
+                    lval.add(
                         self.__recursive_bind_type(element_type, e)
                     )
             else:

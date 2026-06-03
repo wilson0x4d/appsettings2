@@ -595,3 +595,26 @@ def union_attrs_must_bind() -> None:
     obj = configuration.bind(UAMB())
     assert obj.attr1 is None, 'None population expected (2).'
     assert obj.attr2 == 'any', 'optional w/value must bind (2).'
+
+
+@fact
+def set_attrs_must_bind() -> None:
+    class SAMB:
+        attr1: set[int]
+        attr2: Optional[set[int]]
+    #
+    configuration = appsettings2.Configuration.from_dict({
+        'attr1': [1, 1, 2, 3],
+        'attr2': None
+    })
+    obj = configuration.bind(SAMB())
+    assert obj.attr1 is not None, 'basic population expected (1).'
+    assert collections.areSame({1, 2, 3}, obj.attr1), 'population expected to match (1).'
+    assert obj.attr2 is None, 'None population expected (1).'
+    #
+    configuration = appsettings2.Configuration.from_dict({
+        'attr1': None,
+    })
+    obj = configuration.bind(SAMB())
+    assert obj.attr1 is None, 'None population expected (2).'
+    assert obj.attr2 is None, 'attribute expected to return None (2).'
