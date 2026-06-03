@@ -1,12 +1,14 @@
 # SPDX-FileCopyrightText: © 2025 Shaun Wilson
 # SPDX-License-Identifier: MIT
 
-import logging
+from __future__ import annotations
+
 import json
+import logging
 import re
 import types
-import typing
-from typing import Any, Iterator, TYPE_CHECKING
+from types import NoneType
+from typing import Any, Iterator, Union, TYPE_CHECKING, get_args, get_origin, get_type_hints
 import unicodedata
 
 from .ConfigurationException import ConfigurationException
@@ -15,7 +17,7 @@ from .ConfigurationException import ConfigurationException
 class Configuration:
     """The :py:class:`~appsettings2.Configuration` class is how applications access configuration data populated by :py:class:`~appsettings2.providers.ConfigurationProvider` objects. It exposes configuration data through dynamic object attributes as well as a dictionary-like interface."""
 
-    __key_scrub_re: re.Pattern | None
+    __key_scrub_re: re.Pattern[str] | None
     __keys: dict[str, str]
     __normalize: bool
 
@@ -29,8 +31,11 @@ class Configuration:
         self.__keys = {}
         self.__logger = logging.getLogger('appsettings2')
         self.__normalize = normalize
-        self.__key_scrub_re = None if not scrubkeys else re.compile(
-            r'[^A-Za-z0-9_]', re.IGNORECASE | re.UNICODE)
+        self.__key_scrub_re = (
+            None
+            if not scrubkeys
+            else re.compile(r'[^A-Za-z0-9_]', re.IGNORECASE | re.UNICODE)
+        )
 
     if TYPE_CHECKING:
 
@@ -38,7 +43,6 @@ class Configuration:
             """Tell type checkers that accessing any attribute returns any type."""
             ...
 
-        # This tells mypy that setting any attribute is allowed
         def __setattr__(self, name: str, value: Any) -> None:
             """Tell type checkers that setting any attribute to any value is allowed."""
             ...
@@ -79,21 +83,27 @@ class Configuration:
         """Get the number of configuration keys."""
         return len(self.__keys)
 
-    def __recursive_bind(self, target: object, source: 'Configuration|dict') -> Any:
+    def __deunionize(self, t: type) -> type:
+        if get_origin(t) is Union:
+            t = [e for e in get_args(t) if e is not NoneType][0]
+        return t
+
+    def __recursive_bind(self, target: object, source: Configuration | dict[str, Any]) -> Any:
         if target is None:
             return None
         if hasattr(target, '__class__'):
-            target_type_hints = typing.get_type_hints(
-                getattr(target, '__class__'))
+            target_type_hints = get_type_hints(
+                getattr(target, '__class__')
+            )
         else:
-            target_type_hints = typing.get_type_hints(target)
+            target_type_hints = get_type_hints(target)
         names = set(dir(target) | target_type_hints.keys())
         for aname in names:
             if aname.startswith('_'):
                 continue
             lval = None if not hasattr(
                 target, aname) else getattr(target, aname)
-            if isinstance(lval, types.FunctionType) or isinstance(lval, types.MethodType):
+            if isinstance(lval, (types.FunctionType, types.MethodType)):
                 continue
             ahint = target_type_hints.get(aname)
             rval = source.get(aname)
@@ -120,8 +130,8 @@ class Configuration:
                             # non-list values cannot be merged
                             raise Exception(
                                 f'Cannot bind `None` to attribute `{aname}`')
-                phints = typing.get_type_hints(getattr(prop, 'fget'))
-                if phints is None or (not issubclass(type(phints), dict)):
+                phints = get_type_hints(getattr(prop, 'fget'))
+                if phints is None:
                     # NOTE: can't get hints from getter, can't bind
                     continue
                 ahint = phints.get('return')
@@ -137,17 +147,19 @@ class Configuration:
             elif ahint is str:
                 setattr(target, aname, str(rval))
             elif isinstance(rval, Configuration):
-                if typing.get_origin(ahint) is dict:
-                    lval = rval.toDictionary()
+                if get_origin(ahint) is dict:
+                    lval = rval.to_dict()
                     setattr(target, aname, lval)
                 else:
                     if lval is None:
+                        ahint = self.__deunionize(ahint)    
                         lval = ahint()
                         setattr(target, aname, lval)
                     self.__recursive_bind(lval, rval)
-            elif typing.get_origin(ahint) is list:
+            elif get_origin(ahint) is list:
                 element_type = ahint.__args__[0]
                 if lval is None:
+                    ahint = self.__deunionize(ahint)    
                     lval = ahint()
                     setattr(target, aname, lval)
                 for e in rval:
@@ -167,7 +179,7 @@ class Configuration:
             return int(source)
         elif element_type is str:
             return str(source)
-        elif isinstance(source, Configuration | dict):
+        elif isinstance(source, (Configuration, dict)):
             v = element_type()
             return self.__recursive_bind(v, source)
         else:
@@ -183,7 +195,7 @@ class Configuration:
                 'NFKC',
                 key))
 
-    def __scrub_uc(self, m: re.Match) -> str:
+    def __scrub_uc(self, m: re.Match[str]) -> str:
         match unicodedata.category(m[0]):
             case 'Lu' | 'Ll' | 'Lt' | 'Lm' | 'Lo' | 'Nl' | 'Mn' | 'Mc' | 'Nd' | 'Pc':
                 return m[0]
@@ -230,7 +242,7 @@ class Configuration:
             delattr(self, t[1])
 
     @staticmethod
-    def from_dict(source: dict, normalize: bool = False, scrubkeys: bool = False) -> 'Configuration':
+    def from_dict(source: dict[str, Any], normalize: bool = False, scrubkeys: bool = False) -> 'Configuration':
         """
         Construct a :py:class:`~appsettings2.Configuration` instance from the supplied dictionary `source`.
 
@@ -359,12 +371,12 @@ class Configuration:
         for k in self.__keys.values():
             v = getattr(self, self.__scrub_key(k))
             if isinstance(v, Configuration):
-                result[k] = v.toDictionary()
+                result[k] = v.to_dict()
             elif issubclass(type(v), list):
                 tmp = []
                 for e in v:
                     if isinstance(e, Configuration):
-                        tmp.append(e.toDictionary())
+                        tmp.append(e.to_dict())
                     else:
                         tmp.append(e)
                 result[k] = tmp

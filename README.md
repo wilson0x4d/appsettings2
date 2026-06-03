@@ -120,7 +120,7 @@ You can transform a `Configuration` instance into a dictionary (as a copy.) If y
 
 ```python
 configuration = builder.build()
-d = configuration.toDictionary()
+d = configuration.to_dict()
 print(d)
 ```
 

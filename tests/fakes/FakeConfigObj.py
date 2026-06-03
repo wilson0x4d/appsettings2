@@ -1,6 +1,8 @@
 # SPDX-FileCopyrightText: © 2025 Shaun Wilson
 # SPDX-License-Identifier: MIT
 
+from __future__ import annotations
+
 import typing
 
 
@@ -13,7 +15,7 @@ class FakeConfigObj:
     some_int: int
     some_list: list
     some_string: str
-    some_subobj: 'FakeConfigObj'
+    some_subobj: FakeConfigObj
 
     def fn1(self) -> int:
         return -1
@@ -26,6 +28,3 @@ class FakeConfigObj:
 
     def fn4(self) -> typing.Generator[int, None, None]:
         yield -4
-
-
-typing.get_type_hints(FakeConfigObj)  # why? https://github.com/python/typing/issues/797
