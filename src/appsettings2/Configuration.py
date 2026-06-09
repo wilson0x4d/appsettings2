@@ -139,6 +139,23 @@ class Configuration:
                     # NOTE: fget hint missing return spec, can't bind
                     continue
             if rval is None:
+                if get_origin(ahint) is dict:
+                    value_type = get_args(ahint)[1]
+                    if isinstance(source, Configuration):
+                        lval = dict[str, Any]()
+                        for dk, dv in source.items():
+                            lval[dk] = self.__recursive_bind_type(value_type, dv)
+                        setattr(target, aname, lval)
+                        continue
+                    elif isinstance(source, dict):
+                        if value_type in (str, int, float, bool, type(None)):
+                            setattr(target, aname, source)
+                        else:
+                            lval = dict[str, Any]()
+                            for dk, dv in source.items():
+                                lval[dk] = self.__recursive_bind_type(value_type, dv)
+                            setattr(target, aname, lval)
+                        continue
                 setattr(target, aname, None)
             elif ahint is float:
                 setattr(target, aname, float(rval))
@@ -148,8 +165,15 @@ class Configuration:
                 setattr(target, aname, str(rval))
             elif isinstance(rval, Configuration):
                 if get_origin(ahint) is dict:
-                    lval = rval.to_dict()
-                    setattr(target, aname, lval)
+                    value_type = get_args(ahint)[1]
+                    if value_type in (str, int, float, bool, type(None)):
+                        lval = rval.to_dict()
+                        setattr(target, aname, lval)
+                    else:
+                        lval = dict[str, Any]()
+                        for dk, dv in rval.items():
+                            lval[dk] = self.__recursive_bind_type(value_type, dv)
+                        setattr(target, aname, lval)
                 else:
                     if lval is None:
                         ahint = self.__deunionize(ahint)
