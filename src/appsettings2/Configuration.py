@@ -86,6 +86,8 @@ class Configuration:
     def __deunionize(self, t: type) -> type:
         if get_origin(t) is Union:
             t = [e for e in get_args(t) if e is not NoneType][0]
+        elif get_origin(t) is types.UnionType:
+            t = [e for e in get_args(t) if e is not NoneType][0]
         return t
 
     def __recursive_bind(self, target: object, source: Configuration | dict[str, Any]) -> Any:
@@ -157,6 +159,8 @@ class Configuration:
                             setattr(target, aname, lval)
                         continue
                 setattr(target, aname, None)
+            elif ahint is bool:
+                setattr(target, aname, bool(rval))
             elif ahint is float:
                 setattr(target, aname, float(rval))
             elif ahint is int:
@@ -174,6 +178,24 @@ class Configuration:
                         for dk, dv in rval.items():
                             lval[dk] = self.__recursive_bind_type(value_type, dv)
                         setattr(target, aname, lval)
+                elif get_origin(ahint) is Union or (isinstance(ahint, type) and hasattr(ahint, '__origin__')):
+                    # Handle Optional/Union types — unwrap before instantiating
+                    unwrapped = self.__deunionize(ahint)
+                    if get_origin(unwrapped) is dict:
+                        value_type = get_args(unwrapped)[1]
+                        if value_type in (str, int, float, bool, type(None)):
+                            lval = rval.to_dict()
+                            setattr(target, aname, lval)
+                        else:
+                            lval = dict[str, Any]()
+                            for dk, dv in rval.items():
+                                lval[dk] = self.__recursive_bind_type(value_type, dv)
+                            setattr(target, aname, lval)
+                    else:
+                        if lval is None:
+                            lval = unwrapped()
+                            setattr(target, aname, lval)
+                        self.__recursive_bind(lval, rval)
                 else:
                     if lval is None:
                         ahint = self.__deunionize(ahint)
@@ -262,12 +284,58 @@ class Configuration:
             source = self.get(key)
             if source is not None:
                 source_type = type(source)
-                if source_type is Configuration or source_type is dict:
+                if source_type in (Configuration, dict):
                     return self.__recursive_bind(target, source)
+                elif source_type is list:
+                    return self.__bind_list_source(target, key, source)
                 else:
-                    raise ConfigurationException(
-                        f'Bind of source type `{type(source)}` is not supported.')
+                    # Scalar source: convert to matching typed attribute(s) on target
+                    return self.__bind_scalar_to_target(target, key, source)
+
+    def __bind_list_source(self, target: object, key: str, source: list[Any]) -> Any:
+        """Bind a Configuration- or dict-wrapped list source to *target*."""
+        if not hasattr(target, '__class__'):
             return target
+        hints = get_type_hints(type(target))
+        raw_key = self.__scrub_key(key.replace(':', '__'))
+        for attr_name, ahint in hints.items():
+            if raw_key == self.__scrub_key(attr_name) or key.upper() == attr_name.upper():
+                element_type = ahint.__args__[0] if get_origin(ahint) is list else None
+                if element_type is not None and source:
+                    lval = []
+                    for e in source:
+                        lval.append(self.__recursive_bind_type(element_type, e))
+                    setattr(target, attr_name, lval)
+                    return target
+        return target
+
+    def __bind_scalar_to_target(self, target: object, key: str, value: Any) -> Any:
+        """Bind a scalar config value to the typed attribute on *target* matching the key."""
+        if not hasattr(target, '__class__'):
+            return target
+        hints = get_type_hints(type(target))
+        # Normalize / scrub exactly as :py:meth:`set` does so we can match back.
+        raw_key = self.__scrub_key(key.replace(':', '__'))
+        for attr_name, ahint in hints.items():
+            if raw_key == self.__scrub_key(attr_name):
+                converted = self.__convert_to_type(value, ahint)
+                setattr(target, attr_name, converted)
+        return target
+
+    @staticmethod
+    def __convert_to_type(value: Any, target_type: type) -> Any:
+        """Convert *value* to *target_type* using primitive coercion rules."""
+        if target_type is float:
+            return float(value)
+        elif target_type is int:
+            return int(value)
+        elif target_type is str:
+            return str(value)
+        elif target_type is bool:
+            return bool(value)
+        else:
+            # Complex type or Any — nothing we can do for a scalar source
+            return value
 
     def clear(self) -> None:
         """Clear all configuration data."""
