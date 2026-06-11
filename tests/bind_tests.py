@@ -522,7 +522,7 @@ def bind_nested_config_dict_class_values() -> None:
     inner.set('port', 3000)
 
     config = appsettings2.Configuration()
-    config.set('server', {'inner': inner})
+    config.set('servers', {'inner': inner})
 
     target = NestedDictConfigTarget()
     config.bind(target)

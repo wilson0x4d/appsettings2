@@ -99,6 +99,14 @@ class Configuration:
             )
         else:
             target_type_hints = get_type_hints(target)
+
+        # build scrubbed/normalized key lookup (for matching)
+        norm_source: bool | None = None
+        key_scrub_re_cfg: re.Pattern[str] | None = None
+        if isinstance(source, Configuration):
+            norm_source = source._Configuration__normalize
+            key_scrub_re_cfg = source._Configuration__key_scrub_re
+
         names = set(dir(target) | target_type_hints.keys())
         for aname in names:
             if aname.startswith('_'):
@@ -109,6 +117,20 @@ class Configuration:
                 continue
             ahint = target_type_hints.get(aname)
             rval = source.get(aname)
+            # scrub/normalize-aware; look up using transformed keys
+            if rval is None and norm_source is not None:
+                raw_src_key = aname.replace(':', '__')
+                for cfg_key in source.keys():  # type: ignore[union-attr]
+                    raw = cfg_key.replace('.', '_')
+                    candidate = raw.upper() if norm_source else raw
+                    scrubbed = candidate if key_scrub_re_cfg is None \
+                        else key_scrub_re_cfg.sub(
+                            lambda m: '_' if unicodedata.category(m[0]) not in ('Lu', 'Ll', 'Lt', 'Lm', 'Lo', 'Nl', 'Mn', 'Mc', 'Nd', 'Pc') else m[0],
+                            candidate)
+                    compare = scrubbed.replace('-', '_')
+                    if compare == raw_src_key or compare.upper() == raw_src_key.upper():
+                        rval = source.get(cfg_key)  # type: ignore[union-attr]
+                        break
             if ahint is None:
                 # attr has no type hints, attempt to treat as a property
                 prop = getattr(type(target), aname)
@@ -158,6 +180,34 @@ class Configuration:
                                 lval[dk] = self.__recursive_bind_type(value_type, dv)
                             setattr(target, aname, lval)
                         continue
+                # Union/Optional types when rval missing but there's source data?
+                if get_origin(ahint) is Union or get_origin(ahint) is types.UnionType \
+                        or (isinstance(ahint, type) and hasattr(ahint, '__origin__')):
+                    unwrapped = self.__deunionize(ahint)
+                    if unwrapped not in (str, int, float, bool, NoneType):
+                        # source key overlaps with attr names?
+                        src_key_overlap = False
+                        for cfg_key in source.keys():  # type: ignore[union-attr]
+                            raw_src_key = cfg_key.replace('.', '_')
+                            candidate = raw_src_key.upper() if norm_source else raw_src_key
+                            scrubbed = candidate if key_scrub_re_cfg is None \
+                                else key_scrub_re_cfg.sub(
+                                    lambda m: '_' if unicodedata.category(m[0]) not in ('Lu', 'Ll', 'Lt', 'Lm', 'Lo', 'Nl', 'Mn', 'Mc', 'Nd', 'Pc') else m[0],
+                                    candidate)
+                            compare = scrubbed.replace('-', '_').replace('_', '')
+                            for other_attr in names:
+                                if not other_attr.startswith('_'):
+                                    okey = other_attr.replace(':', '__')
+                                    if compare == okey or compare.upper() == okey.upper():
+                                        src_key_overlap = True
+                                        break
+                            if src_key_overlap:
+                                break
+                        if isinstance(source, Configuration) and source.keys() and not src_key_overlap:  # type: ignore[union-attr]
+                            lval = unwrapped()
+                            setattr(target, aname, lval)
+                            self.__recursive_bind(lval, source)
+                            continue
                 setattr(target, aname, None)
             elif ahint is bool:
                 setattr(target, aname, bool(rval))
@@ -178,7 +228,11 @@ class Configuration:
                         for dk, dv in rval.items():
                             lval[dk] = self.__recursive_bind_type(value_type, dv)
                         setattr(target, aname, lval)
-                elif get_origin(ahint) is Union or (isinstance(ahint, type) and hasattr(ahint, '__origin__')):
+                elif (
+                    get_origin(ahint) is Union
+                    or get_origin(ahint) is types.UnionType
+                    or (isinstance(ahint, type) and hasattr(ahint, '__origin__'))
+                ):
                     # Handle Optional/Union types — unwrap before instantiating
                     unwrapped = self.__deunionize(ahint)
                     if get_origin(unwrapped) is dict:
@@ -291,6 +345,8 @@ class Configuration:
                 else:
                     # Scalar source: convert to matching typed attribute(s) on target
                     return self.__bind_scalar_to_target(target, key, source)
+            else:
+                return target
 
     def __bind_list_source(self, target: object, key: str, source: list[Any]) -> Any:
         """Bind a Configuration- or dict-wrapped list source to *target*."""
@@ -306,6 +362,12 @@ class Configuration:
                     for e in source:
                         lval.append(self.__recursive_bind_type(element_type, e))
                     setattr(target, attr_name, lval)
+                    return target
+        # taking object/untyped attr from normalized
+        for attr_name, ahint in hints.items():
+            if raw_key == self.__scrub_key(attr_name) or key.upper() == attr_name.upper():
+                if ahint is object:
+                    setattr(target, attr_name, source)
                     return target
         return target
 
