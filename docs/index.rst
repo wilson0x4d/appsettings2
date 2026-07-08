@@ -11,5 +11,6 @@ Overview
    Accessing Configuration <configuration_values>
    Attribute Handling <attribute_handling>
    Library Reference <ref/index>
+   SKILL <SKILL>
    MIT License <license>
    Contact <contact>
