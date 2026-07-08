@@ -8,7 +8,17 @@ from .Configuration import Configuration
 from .ConfigurationBuilder import ConfigurationBuilder
 
 
-def get_configuration(basename: str | pathlib.PosixPath | pathlib.Path = 'appsettings', json: bool = True, toml: bool = True, yaml: bool = True, cli: bool = True, environment: bool = True, variations: Optional[list[str | None]] = ['', 'prod', 'production', 'stage', 'staging', 'qa', 'dev', 'development', 'local']) -> Configuration:
+def get_configuration(
+    basename: str | pathlib.PosixPath | pathlib.Path = 'appsettings',
+    *,
+    json: bool = True,
+    toml: bool = True,
+    yaml: bool = True,
+    cli: bool = True,
+    environment: bool = True,
+    variations: Optional[list[str | None]] = ['', 'prod', 'production', 'stage', 'staging', 'qa', 'dev', 'development', 'local'],
+    env_prefix: str | None = None
+) -> Configuration:
     """
     Get a ``Configuration`` instance by loading from a set of well-known providers and their variations.
 
@@ -19,6 +29,7 @@ def get_configuration(basename: str | pathlib.PosixPath | pathlib.Path = 'appset
     :param cli: ``True`` to load configuration from Command-Line, defaults to True
     :param environment: ``True`` to load configuration from process Environment, defaults to True
     :param variations: A set of variations to apply to use with file-based Configuration Providers, defaults to ['', 'prod', 'production', 'stage', 'staging', 'qa', 'dev', 'development', 'local']
+    :param env_prefix: (OPTIONAL) When specified, only env vars having the specified prefix are bound as configuration settings, the prefix is stripped from the resulting setting name.
     :return: An ``appsettings2.Configuration`` instance.
     """
     if type(basename) is pathlib.Path or type(basename) is pathlib.PosixPath:
@@ -36,7 +47,7 @@ def get_configuration(basename: str | pathlib.PosixPath | pathlib.Path = 'appset
     if cli:
         builder.add_command_line()
     if environment:
-        builder.add_environment()
+        builder.add_environment(required_prefix=env_prefix)
     return builder.build()
 
 

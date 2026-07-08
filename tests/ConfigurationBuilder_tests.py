@@ -185,3 +185,27 @@ def get_configuration_supports_pathlib() -> None:
     assert 1 == configuration.get('some_subobj:some_int')
     assert 1.1 == configuration.get('some_subobj:some_float')
     assert 'rand1' == configuration.get('some_subobj:some_string')
+
+
+@fact
+def when_add_environment_with_required_prefix_then_filters_env_vars() -> None:
+    """Ensure add_environment(required_prefix=...) filters env vars to only those starting with the prefix."""
+    os.environ['PREFIX_DATABASE_HOST'] = 'db.example.com'
+    os.environ['DATABASE_HOST'] = 'other.example.com'  # should be filtered out
+    builder = appsettings2.ConfigurationBuilder()
+    builder.add_environment(required_prefix='PREFIX_')
+    configuration = builder.build()
+    assert configuration is not None
+    assert 'db.example.com' == configuration.get('DATABASE_HOST')
+    assert configuration.get('OTHER:DATABASE_HOST') is None
+
+
+@fact
+def when_add_environment_with_required_prefix_then_strips_prefix_from_keys() -> None:
+    """Ensure add_environment(required_prefix=...) strips the prefix from resulting config keys."""
+    os.environ['PREFIX_DATABASE_HOST'] = 'db.example.com'
+    builder = appsettings2.ConfigurationBuilder()
+    builder.add_environment(required_prefix='PREFIX_')
+    configuration = builder.build()
+    assert configuration is not None
+    assert 'db.example.com' == configuration.get('DATABASE_HOST')

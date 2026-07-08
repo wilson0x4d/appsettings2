@@ -25,7 +25,7 @@ dev = [
     "flake8-pyproject",
     "mypy",
     "pep8-naming",
-    "punit (>=1.4.9)",
+    "punit (>=1.10.8)",
     "twine",
     "types-PyYAML"
 ]

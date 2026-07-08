@@ -65,13 +65,14 @@ class ConfigurationBuilder:
     addCommandLine = add_command_line
     """⚠️ DEPRECATED: use ``add_command_line(...)`` instead."""
  
-    def add_environment(self) -> 'ConfigurationBuilder':
+    def add_environment(self, required_prefix: str | None = None) -> 'ConfigurationBuilder':
         """
         Add a :py:class:`~appsettings2.providers.EnvironmentConfigurationProvider`.
 
+        :param required_prefix: Optional prefix used to filter which environment variables are included. Only variables whose names start with this prefix (followed by ``_`` or ``__``) will be loaded. When ``None``, all environment variables are included. Defaults to None.
         :return: Returns :py:class:`~appsettings2.ConfigurationBuilder` for method chaining.
         """
-        return self.add_provider(EnvironmentConfigurationProvider())
+        return self.add_provider(EnvironmentConfigurationProvider(required_prefix=required_prefix))
 
     addEnvironment = add_environment
     """⚠️ DEPRECATED: use ``add_environment(...)`` instead."""
