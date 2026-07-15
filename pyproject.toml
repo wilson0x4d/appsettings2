@@ -7,7 +7,7 @@ authors = [
     { name="Shaun Wilson", email="mrshaunwilson@msn.com" }
 ]
 readme = "README.md"
-license = {file = "LICENSE"}
+license = "MIT"
 classifiers = [
     "Intended Audience :: Developers",
     "Operating System :: OS Independent",
@@ -48,7 +48,7 @@ exclude = [
 ]
 
 [tool.setuptools.package-data]
-"appsettings2" = ["py.typed"]
+"appsettings2" = ["py.typed", "SKILL.md"]
 
 [tool.flake8]
 max-line-length = 120
