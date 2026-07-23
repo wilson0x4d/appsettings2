@@ -4,8 +4,8 @@
 import sys
 from typing import Optional
 
-from ..Configuration import Configuration
 from .ConfigurationProvider import ConfigurationProvider
+from ..Configuration import Configuration
 
 
 class CommandLineConfigurationProvider(ConfigurationProvider):

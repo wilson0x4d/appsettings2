@@ -38,7 +38,7 @@ def bind_dict_with_class_values_rehydrates() -> None:
     target.timeout = 30.0
     config.bind(target)
     assert isinstance(target.servers['a'], InnerSetting), (
-        "Expected InnerSetting, got plain dict")
+        'Expected InnerSetting, got plain dict')
     assert 'alpha.local' == target.servers['a'].host
     assert 5432 == target.servers['a'].port
     assert isinstance(target.servers['b'], InnerSetting)

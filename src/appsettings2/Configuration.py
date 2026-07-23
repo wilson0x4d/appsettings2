@@ -7,26 +7,42 @@ import json
 import logging
 import re
 import types
-from types import NoneType
-from typing import Any, Iterator, Union, TYPE_CHECKING, get_args, get_origin, get_type_hints
 import unicodedata
+from enum import Enum
+from types import NoneType
+from typing import Any, Callable, Iterator, Union, TYPE_CHECKING, get_args, get_origin, get_type_hints
 
 from .ConfigurationException import ConfigurationException
+
+if TYPE_CHECKING:
+    from .ConfigurationWatcher import ConfigurationWatcher
+
+
+class ChangeType(str, Enum):
+    CHANGING = 'changing'
+    CHANGED = 'changed'
+    CLOSED = 'closed'
 
 
 class Configuration:
     """The :py:class:`~appsettings2.Configuration` class is how applications access configuration data populated by :py:class:`~appsettings2.providers.ConfigurationProvider` objects. It exposes configuration data through dynamic object attributes as well as a dictionary-like interface."""
 
+    __handlers: list[Callable[[Configuration, ChangeType, str | None], None]]
     __key_scrub_re: re.Pattern[str] | None
     __keys: dict[str, str]
     __normalize: bool
+    __watcher: ConfigurationWatcher | None
 
-    def __init__(self, normalize: bool = False, scrubkeys: bool = False) -> None:
+    disable_events: bool
+
+    def __init__(self, normalize: bool = False, scrubkeys: bool = False, disable_events: bool | None = None, watcher: ConfigurationWatcher | None = None) -> None:
         """
         Initialize *Configuration* instance.
 
         :param normalize: Option indicating whether or not attribute names should be normalized to upper-case on the resulting :py:class:`~appsettings2.Configuration` object, defaults to False.
         :param scrubkeys: Option indicating whether or not attribute names should be scrubbed to be compatible with the Python lexer, defaults to False.
+        :param disable_events: Option indicating whether change events should be emitted, defaults to False.
+        :param watcher: Optional :py:class:`~appsettings2.ConfigurationWatcher` to associate with this configuration.
         """
         self.__keys = {}
         self.__logger = logging.getLogger('appsettings2')
@@ -36,6 +52,11 @@ class Configuration:
             if not scrubkeys
             else re.compile(r'[^A-Za-z0-9_]', re.IGNORECASE | re.UNICODE)
         )
+        self.disable_events = disable_events is True
+        self.__handlers = []
+        self.__watcher = watcher
+        if self.__watcher is not None:
+            self.__watcher.watch_handler = self.__on_watch_event
 
     if TYPE_CHECKING:
 
@@ -47,13 +68,76 @@ class Configuration:
             """Tell type checkers that setting any attribute to any value is allowed."""
             ...
 
+    def __del__(self) -> None:
+        self.close()
+
+    def __on_changing(self, key: str | None) -> None:
+        if self.disable_events:
+            return
+        key = self.__normalize_key(key)
+        for entry in self.__handlers:
+            entry(self, ChangeType.CHANGING, key)
+
+    def __on_changed(self, key: str | None) -> None:
+        if self.disable_events:
+            return
+        key = self.__normalize_key(key)
+        for entry in self.__handlers:
+            entry(self, ChangeType.CHANGED, key)
+
+    def __on_close(self, key: str | None) -> None:
+        if self.disable_events:
+            return
+        key = self.__normalize_key(key)
+        for entry in self.__handlers:
+            entry(self, ChangeType.CLOSED, None)
+        self.__handlers.clear()
+
+    def __on_watch_event(self, filepath: str, watch_event_type: str, configuration: Configuration | None = None) -> None:
+        if watch_event_type in ('c', 'm') and configuration is not None:
+            self.merge(configuration)
+
+    def __add_child_change_handler(self, child_key: str) -> None:
+        if self.disable_events:
+            return
+
+        def child_change_handler(configuration: Configuration, change_type: ChangeType, key: str | None) -> None:
+            if change_type is ChangeType.CHANGING:
+                self.__on_changing(f'{child_key}.{key}')
+            elif change_type is ChangeType.CHANGED:
+                self.__on_changed(f'{child_key}.{key}')
+        child_change_handler.__dict__['_auto_wired'] = True
+        child_change_handler.__dict__['_auto_wired_child_key'] = child_key
+        child_change_handler.__dict__['_auto_wired_parent'] = self
+        self[child_key].add_change_handler(child_change_handler)
+
+    def __remove_child_change_handler(self, child_key: str) -> None:
+        child = getattr(self, child_key, None)
+        if child is None:
+            return
+        child_handlers = child.__handlers
+        for i in range(len(child_handlers) - 1, -1, -1):
+            handler = child_handlers[i]
+            d = getattr(handler, '__dict__', {})
+            if d.get('_auto_wired') and d.get('_auto_wired_child_key') == child_key:
+                child_handlers.pop(i)
+                break
+
+    def __normalize_key(self, key: str | None) -> str | None:
+        return None if key is None else key.replace('__', '.').replace(':', '.')
+
     def __delitem__(self, key: str) -> None:
         """Delete the specified configuration key."""
         key = key.upper()
         k = self.__keys.get(key)
         if k is not None:
+            value = getattr(self, k)
+            self.__on_changing(key)
+            if isinstance(value, Configuration):
+                self.__remove_child_change_handler(k)
             delattr(self, k)
             self.__keys.pop(key)
+            self.__on_changed(key)
 
     def __getitem__(self, key: str) -> Any:
         """
@@ -320,34 +404,6 @@ class Configuration:
         """Render the configuration as a JSON string."""
         return json.dumps(self.to_dict(), indent=None, ensure_ascii=False)
 
-    def bind(self, target: object, key: str | None = None) -> Any:
-        """
-        Binds the configuration values into the target object.
-
-        Can optionally specify a configuration key to bind from.
-
-        :param target: The object to bind configuration data into.
-        :param key: An optional confguration key to bind to, defaults to None which binds to the configuration root.
-        :return: The original `target` object, modified in-place.
-        """
-        if target is None:
-            raise ConfigurationException('Missing required argument: target')
-        if key is None:
-            return self.__recursive_bind(target, self)
-        else:
-            source = self.get(key)
-            if source is not None:
-                source_type = type(source)
-                if source_type in (Configuration, dict):
-                    return self.__recursive_bind(target, source)
-                elif source_type is list:
-                    return self.__bind_list_source(target, key, source)
-                else:
-                    # Scalar source: convert to matching typed attribute(s) on target
-                    return self.__bind_scalar_to_target(target, key, source)
-            else:
-                return target
-
     def __bind_list_source(self, target: object, key: str, source: list[Any]) -> Any:
         """Bind a Configuration- or dict-wrapped list source to *target*."""
         if not hasattr(target, '__class__'):
@@ -399,29 +455,70 @@ class Configuration:
             # Complex type or Any — nothing we can do for a scalar source
             return value
 
+    def bind(self, target: object, key: str | None = None) -> Any:
+        """
+        Binds the configuration values into the target object.
+
+        Can optionally specify a configuration key to bind from.
+
+        :param target: The object to bind configuration data into.
+        :param key: An optional confguration key to bind to, defaults to None which binds to the configuration root.
+        :return: The original `target` object, modified in-place.
+        """
+        if target is None:
+            raise ConfigurationException('Missing required argument: target')
+        if key is None:
+            return self.__recursive_bind(target, self)
+        else:
+            source = self.get(key)
+            if source is not None:
+                source_type = type(source)
+                if source_type in (Configuration, dict):
+                    return self.__recursive_bind(target, source)
+                elif source_type is list:
+                    return self.__bind_list_source(target, key, source)
+                else:
+                    # Scalar source: convert to matching typed attribute(s) on target
+                    return self.__bind_scalar_to_target(target, key, source)
+            else:
+                return target
+
+    def close(self) -> None:
+        self.__on_close(None)
+
+    def add_change_handler(self, handler: Callable[["Configuration", ChangeType, str | None], None]) -> None:
+        self.__handlers.append(handler)
+
+    def remove_change_handler(self, handler: Callable[["Configuration", ChangeType, str | None], None]) -> None:
+        for i in range(len(self.__handlers)):
+            if self.__handlers[i] is handler:
+                self.__handlers.pop(i)
+                break
+
     def clear(self) -> None:
         """Clear all configuration data."""
-        while len(self.__keys) > 0:
-            t = self.__keys.popitem()
-            delattr(self, t[1])
+        keys = list(self.__keys.keys())
+        for uk in keys:
+            del self[uk]
 
     @staticmethod
-    def from_dict(source: dict[str, Any], normalize: bool = False, scrubkeys: bool = False) -> 'Configuration':
+    def from_dict(source: dict[str, Any], normalize: bool = False, scrubkeys: bool = False, disable_events: bool | None = None) -> Configuration:
         """
         Construct a :py:class:`~appsettings2.Configuration` instance from the supplied dictionary `source`.
 
         :param source: The dictionary object to populate from.
         :param normalize: Option indicating whether or not attribute names should be normalized to upper-case on the resulting :py:class:`~appsettings2.Configuration` object, defaults to False.
         :param scrubkeys: Option indicating whether or not attribute names should be scrubbed to be compatible with the Python lexer, defaults to False.
+        :param disable_events: Option indicating whether change events should be emitted, defaults to False.
         :return: A :py:class:`~appsettings2.Configuration` object derived from the `source` parameter.
         """
         config: Configuration = Configuration(
-            normalize=normalize, scrubkeys=scrubkeys)
+            normalize=normalize, scrubkeys=scrubkeys, disable_events=disable_events)
         for kvp in source.items():
             v = kvp[1]
             if issubclass(type(v), dict):
                 v = Configuration.from_dict(
-                    v, normalize=normalize, scrubkeys=scrubkeys)
+                    v, normalize=normalize, scrubkeys=scrubkeys, disable_events=disable_events)
             config.set(kvp[0], v)
         return config
 
@@ -465,6 +562,19 @@ class Configuration:
         """Get a list of all configuration keys."""
         return list(self.__keys.values())
 
+    def merge(self, configuration: Configuration) -> None:
+        """
+        Performs a shallow merge of the provided configuration object.
+
+        Keys present in ``configuration`` that do not already exist in ``self`` (or have differing values) are written to ``self``.
+
+        :param configuration: The object to merge.
+        """
+        _sentinel = object()
+        for key in configuration.keys():
+            if self.get(key, _sentinel) != configuration[key]:
+                self[key] = configuration[key]
+
     def pop(self, key: str) -> Any:
         """Delete a specific configuration key."""
         value = self[key]
@@ -481,7 +591,11 @@ class Configuration:
         if self.__normalize:
             key = key.upper()
         parts = key.replace(':', '__').split('__')
+        full_key_for_events = key.replace('__', '.').replace(':', '.')
+        self.__on_changing(full_key_for_events)
         o = self
+
+        # Build intermediate hierarchy without emitting events
         for i in range(len(parts) - 1):
             if o == self:
                 k = self.__keys.get(parts[i].upper())
@@ -490,6 +604,7 @@ class Configuration:
                         self.__key_scrub_re is None))
                     setattr(o, self.__scrub_key(parts[i]), c)
                     self.__keys[parts[i].upper()] = parts[i]
+                    o.__add_child_change_handler(parts[i])
                     o = c
                 else:
                     o = getattr(self, self.__scrub_key(k))
@@ -501,6 +616,8 @@ class Configuration:
                     o = c
                 else:
                     o = o.get(parts[i])
+
+        # Convert dict/list values
         vtype = type(value)
         if issubclass(vtype, dict):
             value = Configuration.from_dict(
@@ -514,6 +631,7 @@ class Configuration:
                 else:
                     l.append(e)
             value = l
+
         key = parts[-1]
         if o == self:
             k = self.__keys.get(key.upper())
@@ -522,8 +640,13 @@ class Configuration:
             else:
                 self.__keys[key.upper()] = key
                 setattr(self, self.__scrub_key(key), value)
+            if isinstance(value, Configuration):
+                self.__add_child_change_handler(key)
         else:
             o.set(key, value)
+
+        self.__on_changed(full_key_for_events)
+
 
     def to_dict(self) -> dict[str, Any]:
         """

@@ -15,7 +15,7 @@ classifiers = [
 ]
 requires-python = ">=3.11"
 dependencies = [
-  "pyyaml>=6.0.2"
+  "pyyaml>=6.0.3"
 ]
 
 [project.optional-dependencies]
@@ -25,7 +25,7 @@ dev = [
     "flake8-pyproject",
     "mypy",
     "pep8-naming",
-    "punit (>=1.10.8)",
+    "punit (>=1.12.5)",
     "twine",
     "types-PyYAML"
 ]
@@ -53,6 +53,6 @@ exclude = [
 [tool.flake8]
 max-line-length = 120
 ignore = ["D100","E501"]
-per-file-ignore = [
-    "tests/*.py:D012",
+per-file-ignores = [
+    "tests/*.py:D012,E306",
 ]

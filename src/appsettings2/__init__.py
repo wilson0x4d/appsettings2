@@ -2,8 +2,9 @@
 # SPDX-FileCopyrightText: © 2025 Shaun Wilson
 # SPDX-License-Identifier: MIT
 
-from .Configuration import Configuration
+from .Configuration import Configuration, ChangeType
 from .ConfigurationBuilder import ConfigurationBuilder
+from .ConfigurationWatcher import ConfigurationWatcher, WatchEventType
 from .ConfigurationException import ConfigurationException
 from .helpers import get_configuration, getConfiguration
 from . import helpers
@@ -15,7 +16,10 @@ __commit__ = '0abc123'
 __all__ = [
     '__version__', '__commit__',
     'Configuration',
+    'ChangeType',
     'ConfigurationBuilder',
+    'ConfigurationWatcher',
+    'WatchEventType',
     'ConfigurationException',
     'get_configuration',
     'helpers',

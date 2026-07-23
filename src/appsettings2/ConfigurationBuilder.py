@@ -1,6 +1,8 @@
 # SPDX-FileCopyrightText: © 2025 Shaun Wilson
 # SPDX-License-Identifier: MIT
 
+from typing import Any, Optional, TypeAlias
+
 from .Configuration import Configuration
 from .ConfigurationException import ConfigurationException
 from .providers import (
@@ -11,7 +13,6 @@ from .providers import (
     TomlConfigurationProvider,
     YamlConfigurationProvider,
 )
-from typing import Optional, TypeAlias
 
 
 FileDescriptor: TypeAlias = int
@@ -22,19 +23,25 @@ class ConfigurationBuilder:
     Build a :py:class:`~appsettings2.Configuration` object from one or more :py:class:`~appsettings2.providers.ConfigurationProvider` instances.
     """
 
+    __disable_events: bool | None
     __normalize: bool
     __providers: list[ConfigurationProvider]
+    __watcher: Any
 
-    def __init__(self, normalize: bool = False, scrubkeys: bool = False) -> None:
+    def __init__(self, normalize: bool = False, scrubkeys: bool = False, disable_events: bool | None = None, watcher: Any = None) -> None:
         """
         Initialize *ConfigurationBuilder* instance.
 
         :param normalize: Option indicating whether or not attribute names should be normalized to upper-case on the resulting :py:class:`~appsettings2.Configuration` object, defaults to False.
         :param scrubkeys: Option indicating whether or not attribute names should be scrubbed to be compatible with the Python lexer, defaults to False.
+        :param disable_events: Option indicating whether change events should be emitted, defaults to None.
+        :param watcher: Optional :py:class:`~appsettings2.ConfigurationWatcher` to associate with the built configuration.
         """
+        self.__disable_events = disable_events
         self.__normalize = normalize
         self.__scrubkeys = scrubkeys
         self.__providers = []
+        self.__watcher = watcher
 
     def add_provider(self, provider: ConfigurationProvider) -> 'ConfigurationBuilder':
         """
@@ -128,16 +135,53 @@ class ConfigurationBuilder:
     addYaml = add_yaml
     """⚠️ DEPRECATED: use ``add_yaml(...)`` instead."""
 
-    def build(self) -> Configuration:
+    def disable_events(self) -> 'ConfigurationBuilder':
+        """
+        Disable change events for the built :py:class:`~appsettings2.Configuration`.
+
+        :return: Returns :py:class:`~appsettings2.ConfigurationBuilder` for method chaining.
+        """
+        self.__disable_events = True
+        return self
+
+    def disableEvents(self) -> 'ConfigurationBuilder':
+        """⚠️ DEPRECATED: use ``disable_events(...)`` instead."""
+        return self.disable_events()
+
+    def enable_watcher(self) -> 'ConfigurationBuilder':
+        """
+        Create and assign a :py:class:`~appsettings2.ConfigurationWatcher` instance to the builder.
+
+        Only creates a new watcher if ``self.__watcher`` is ``None``.
+
+        :return: Returns :py:class:`~appsettings2.ConfigurationBuilder` for method chaining.
+        """
+        if self.__watcher is None:
+            from .ConfigurationWatcher import ConfigurationWatcher
+            self.__watcher = ConfigurationWatcher()
+        return self
+
+    def build(self, disable_events: bool | None = None, watcher: Any = None) -> Configuration:
         """
         Builds a `Configuration` object using the providers which have been added to the builder.
 
+        :param disable_events: Option indicating whether change events should be emitted, defaults to None (uses value from ``__init__``).
+        :param watcher: Optional :py:class:`~appsettings2.ConfigurationWatcher`, defaults to None (uses value from ``__init__``).
         :return: A `Configuration` object, populated with configuration data.
         """
+        effective_watcher = watcher if watcher is not None else self.__watcher
         configuration = Configuration(
-            normalize=self.__normalize, scrubkeys=self.__scrubkeys)
+            normalize=self.__normalize,
+            scrubkeys=self.__scrubkeys,
+            disable_events=disable_events if disable_events is not None else self.__disable_events,
+            watcher=effective_watcher)
         for provider in self.__providers:
             provider.populate_configuration(configuration)
+        if effective_watcher is not None:
+            for provider in self.__providers:
+                fp = getattr(provider, 'filepath', None)
+                if fp is not None:
+                    effective_watcher.add_watch(fp)
         return configuration
 
 

@@ -1,13 +1,14 @@
 # SPDX-FileCopyrightText: © 2025 Shaun Wilson
 # SPDX-License-Identifier: MIT
 
+from io import StringIO
+import os
+import yaml as _yaml
+from typing import Any, Optional, TypeAlias
+
 from .ConfigurationProvider import ConfigurationProvider
 from ..Configuration import Configuration
 from ..ConfigurationException import ConfigurationException
-from io import StringIO
-import os
-from typing import Optional, TypeAlias
-import yaml as _yaml
 
 FileDescriptor: TypeAlias = int
 
@@ -15,7 +16,8 @@ FileDescriptor: TypeAlias = int
 class YamlConfigurationProvider(ConfigurationProvider):
     """A ``ConfigurationProvider`` that populates configuration data from YAML."""
 
-    __obj: dict
+    __filepath: str | None
+    __obj: dict[str, Any]
 
     def __init__(self, filepath: Optional[str] = None, yaml: Optional[str] = None, fd: Optional[FileDescriptor] = None, required: bool = True) -> None:
         """
@@ -28,6 +30,7 @@ class YamlConfigurationProvider(ConfigurationProvider):
         :param fd: Optional file descriptor (int) to be used as a configuration source, defaults to None.
         :param required: Optional parameter indicating whether the configuration source will raise `ConfigurationException` if the specified configuration source is missing, defaults to True.
         """
+        self.__filepath = filepath
         obj = None
         try:
             if filepath:
@@ -47,7 +50,7 @@ class YamlConfigurationProvider(ConfigurationProvider):
         finally:
             self.__obj = {} if obj is None else obj
 
-    def __populate_recursive(self, configuration: Configuration, prefix: str, o: dict) -> None:
+    def __populate_recursive(self, configuration: Configuration, prefix: str, o: dict[str, Any]) -> None:
         for kvp in o.items():
             if isinstance(kvp[1], dict):
                 self.__populate_recursive(
@@ -63,6 +66,11 @@ class YamlConfigurationProvider(ConfigurationProvider):
                 self.__populate_recursive(configuration, kvp[0], kvp[1])
             else:
                 configuration.set(f'{kvp[0]}', kvp[1])
+
+    @property
+    def filepath(self) -> str | None:
+        """The file path used to initialize this provider, or ``None``."""
+        return self.__filepath
 
 
 __all__ = ['YamlConfigurationProvider']

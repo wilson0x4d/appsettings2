@@ -3,7 +3,7 @@
 
 import appsettings2
 import os
-from punit import fact, theory, inlinedata
+from punit import fact, inlinedata, theory
 
 
 class EnvironmentConfigurationProviderTests:

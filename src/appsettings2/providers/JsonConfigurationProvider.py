@@ -3,10 +3,11 @@
 
 import json as _json
 import os
-from typing import Optional, TypeAlias
+from typing import Any, Optional, TypeAlias
+
+from .ConfigurationProvider import ConfigurationProvider
 from ..Configuration import Configuration
 from ..ConfigurationException import ConfigurationException
-from .ConfigurationProvider import ConfigurationProvider
 
 
 FileDescriptor: TypeAlias = int
@@ -15,7 +16,8 @@ FileDescriptor: TypeAlias = int
 class JsonConfigurationProvider(ConfigurationProvider):
     """A ``ConfigurationProvider`` that populates configuration data from JSON."""
 
-    __obj: dict
+    __filepath: str | None
+    __obj: dict[str, Any]
 
     def __init__(self, filepath: Optional[str] = None, json: Optional[str] = None, fd: Optional[FileDescriptor] = None, required: bool = True) -> None:
         """
@@ -28,6 +30,7 @@ class JsonConfigurationProvider(ConfigurationProvider):
         :param fd: Optional file descriptor (int) to be used as a configuration source, defaults to None.
         :param required: Optional parameter indicating whether the configuration source will raise `ConfigurationException` if the specified configuration source is missing, defaults to True.
         """
+        self.__filepath = filepath
         obj = None
         try:
             if filepath:
@@ -44,7 +47,7 @@ class JsonConfigurationProvider(ConfigurationProvider):
         finally:
             self.__obj = {} if obj is None else obj
 
-    def __populate_recursive(self, configuration: Configuration, prefix: str, o: dict) -> None:
+    def __populate_recursive(self, configuration: Configuration, prefix: str, o: dict[str, Any]) -> None:
         for kvp in o.items():
             if isinstance(kvp[1], dict):
                 self.__populate_recursive(configuration, f'{prefix}__{kvp[0]}', kvp[1])
@@ -59,6 +62,11 @@ class JsonConfigurationProvider(ConfigurationProvider):
                 self.__populate_recursive(configuration, kvp[0], kvp[1])
             else:
                 configuration.set(f'{kvp[0]}', kvp[1])
+
+    @property
+    def filepath(self) -> str | None:
+        """The file path used to initialize this provider, or ``None``."""
+        return self.__filepath
 
 
 __all__ = ['JsonConfigurationProvider']

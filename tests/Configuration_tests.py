@@ -4,7 +4,7 @@
 import appsettings2
 import json
 import os
-from punit import fact, exceptions, collections
+from punit import collections, exceptions, fact
 from typing import Any, Optional
 
 from .fakes.FakeConfigObj import FakeConfigObj  # type: ignore
@@ -618,3 +618,62 @@ def set_attrs_must_bind() -> None:
     obj = configuration.bind(SAMB())
     assert obj.attr1 is None, 'None population expected (2).'
     assert obj.attr2 is None, 'attribute expected to return None (2).'
+
+
+@fact
+def merge_shallow_copies_keys_from_source() -> None:
+    base = appsettings2.Configuration()
+    base.set('existing', 'a')
+    source = appsettings2.Configuration()
+    source.set('existing', 'a')
+    source.set('new_key', 'b')
+    base.merge(source)
+    assert 'a' == base.get('existing')
+    assert 'b' == base.get('new_key')
+
+
+@fact
+def merge_overwrites_differing_values() -> None:
+    base = appsettings2.Configuration()
+    base.set('key1', 'old')
+    source = appsettings2.Configuration()
+    source.set('key1', 'new')
+    base.merge(source)
+    assert 'new' == base.get('key1')
+
+
+@fact
+def merge_preserves_unchanged_values() -> None:
+    base = appsettings2.Configuration()
+    base.set('key1', 'unchanged')
+    base.set('key2', 'also_unchanged')
+    source = appsettings2.Configuration()
+    source.set('key1', 'unchanged')
+    base.merge(source)
+    assert 'unchanged' == base.get('key1')
+    assert 'also_unchanged' == base.get('key2')
+
+
+@fact
+def merge_adds_missing_keys() -> None:
+    base = appsettings2.Configuration()
+    base.set('base_key', 'base_val')
+    source = appsettings2.Configuration()
+    source.set('source_key', 'source_val')
+    base.merge(source)
+    assert 'base_val' == base.get('base_key')
+    assert 'source_val' == base.get('source_key')
+
+
+@fact
+def merge_handles_nested_configurations() -> None:
+    inner1 = appsettings2.Configuration()
+    inner1.set('value', 1)
+    base = appsettings2.Configuration()
+    base.set('section', inner1)
+    inner2 = appsettings2.Configuration()
+    inner2.set('value', 2)
+    source = appsettings2.Configuration()
+    source.set('section', inner2)
+    base.merge(source)
+    assert 2 == base['section'].value

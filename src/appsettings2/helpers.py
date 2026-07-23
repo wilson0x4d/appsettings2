@@ -17,7 +17,8 @@ def get_configuration(
     cli: bool = True,
     environment: bool = True,
     variations: Optional[list[str | None]] = ['', 'prod', 'production', 'stage', 'staging', 'qa', 'dev', 'development', 'local'],
-    env_prefix: str | None = None
+    env_prefix: str | None = None,
+    disable_events: bool | None = None
 ) -> Configuration:
     """
     Get a ``Configuration`` instance by loading from a set of well-known providers and their variations.
@@ -30,6 +31,7 @@ def get_configuration(
     :param environment: ``True`` to load configuration from process Environment, defaults to True
     :param variations: A set of variations to apply to use with file-based Configuration Providers, defaults to ['', 'prod', 'production', 'stage', 'staging', 'qa', 'dev', 'development', 'local']
     :param env_prefix: (OPTIONAL) When specified, only env vars having the specified prefix are bound as configuration settings, the prefix is stripped from the resulting setting name.
+    :param disable_events: Option indicating whether change events should be emitted, defaults to False.
     :return: An ``appsettings2.Configuration`` instance.
     """
     if type(basename) is pathlib.Path or type(basename) is pathlib.PosixPath:
@@ -48,7 +50,7 @@ def get_configuration(
         builder.add_command_line()
     if environment:
         builder.add_environment(required_prefix=env_prefix)
-    return builder.build()
+    return builder.build(disable_events=disable_events)
 
 
 getConfiguration = get_configuration  # noqa: N816
