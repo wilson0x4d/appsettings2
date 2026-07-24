@@ -87,7 +87,7 @@ class ConfigurationWatcher:
         self.__handler_lock = threading.Lock()
         self.__logger = logging.getLogger(__name__)
 
-    def add_watch(self, filepath: str) -> None:
+    def add_watch(self, filepath: str) -> ConfigurationWatcher:
         """Add a file path to be watched for changes.
 
         The path is normalised to a fully-qualified (canonical) path via
@@ -100,18 +100,18 @@ class ConfigurationWatcher:
         resolved = os.path.realpath(filepath)
         with self.__lock:
             is_first_watch = len(self.__watches) == 0
-            if resolved in self.__watches:
-                return
-            self.__watches[resolved] = {
-                'path': resolved,
-                'size': None,
-                'mtime': None,
-                'state': 'pending',
-            }
-            if is_first_watch:
-                self.__start_thread()
+            if resolved not in self.__watches:
+                self.__watches[resolved] = {
+                    'path': resolved,
+                    'size': None,
+                    'mtime': None,
+                    'state': 'pending',
+                }
+                if is_first_watch:
+                    self.__start_thread()
+        return self
 
-    def remove_watch(self, filepath: str) -> None:
+    def remove_watch(self, filepath: str) -> ConfigurationWatcher:
         """Remove a previously added watch.
 
         Silently does nothing if the watch does not exist. The polling thread
@@ -122,11 +122,11 @@ class ConfigurationWatcher:
         """
         resolved = os.path.realpath(filepath)
         with self.__lock:
-            if resolved not in self.__watches:
-                return
-            del self.__watches[resolved]
-            if len(self.__watches) == 0 and self.__thread is not None:
-                self.__drain_thread()
+            if resolved in self.__watches:
+                del self.__watches[resolved]
+                if len(self.__watches) == 0 and self.__thread is not None:
+                    self.__drain_thread()
+        return self
 
     def list_watches(self) -> list[str]:
         """Return a fresh list of all currently watched file paths.
